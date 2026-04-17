@@ -1,0 +1,1324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#1a1208" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="AI Aerospace" />
+  <meta name="description" content="Interactive AI learning course for aerospace manufacturing professionals — 14 lessons across LLMs, RAG, agents, and ITAR-compliant deployment." />
+
+  <title>AI Mastery for Aerospace</title>
+
+  <link rel="manifest" href="./manifest.json" />
+  <link rel="apple-touch-icon" href="./icons/icon-192.png" />
+  <link rel="icon" type="image/png" href="./icons/icon-192.png" />
+
+  <!-- React 18 from CDN -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <!-- Babel Standalone to transpile JSX in-browser -->
+  <script src="https://unpkg.com/@babel/standalone@7/babel.min.js"></script>
+
+  <style>
+    html, body { margin: 0; padding: 0; height: 100%; overscroll-behavior: none; }
+    body {
+      font-family: Georgia, serif;
+      background: #f5f0e8;
+      color: #1a1208;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    #root { min-height: 100dvh; }
+
+    /* Initial load state — shown until React mounts */
+    .boot-loader {
+      display: flex; align-items: center; justify-content: center;
+      min-height: 100dvh; flex-direction: column; gap: 16px;
+      font-family: Georgia, serif; color: #7a6e5f;
+    }
+    .boot-loader .plane { font-size: 48px; animation: pulse 1.6s ease-in-out infinite; }
+    .boot-loader .label {
+      font-family: monospace; font-size: 11px; letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 0.5; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.08); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .boot-loader .plane { animation: none; }
+    }
+  </style>
+</head>
+<body>
+  <div id="root">
+    <!-- Boot loader shown while Babel transpiles the component below -->
+    <div class="boot-loader" aria-label="Loading course">
+      <div class="plane" aria-hidden="true">✈️</div>
+      <div class="label">Loading course…</div>
+    </div>
+  </div>
+
+  <!-- Register service worker for offline support -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').catch((err) => {
+          console.warn('Service worker registration failed:', err);
+        });
+      });
+    }
+  </script>
+
+  <!-- The React component, transpiled by Babel at load time -->
+  <script type="text/babel" data-presets="react" data-type="module">
+const { useState, useEffect, Component } = React;
+
+const LESSONS = [
+{
+  phase: "Phase 1", phaseColor: "#c84b11",
+  title: "Welcome & Orientation",
+  subtitle: "What this course covers, how it works, and what you'll be able to do when you're done.",
+  time: "20 min", type: "Orientation",
+  video: { id: "zjkBMFhNj_g", title: "Intro to Large Language Models (Andrej Karpathy, 1 hr)" },
+  content: [
+    { type: "p", text: "Welcome. This course is built specifically for your situation: you've used AI tools like ChatGPT or Claude, have some coding exposure, and work in aerospace component manufacturing. That context shapes everything — no generic AI hype, just practical skills grounded in real manufacturing problems." },
+    { type: "h3", text: "How This Course Works" },
+    { type: "p", text: "Each lesson combines a short recommended video, written content with aerospace examples, and knowledge-check quizzes. Work at your own pace — lessons are designed for 4–6 hours per week across 6 months." },
+    { type: "grid", items: [
+      { title: "📹 Videos", text: "Curated YouTube content from top AI educators — watch before or after the reading." },
+      { title: "📖 Lessons", text: "Clear explanations with aerospace manufacturing examples woven throughout every concept." },
+      { title: "🧩 Quizzes", text: "Multiple-choice knowledge checks after each lesson — immediate feedback with explanations." },
+      { title: "✅ Progress", text: "Track your completion through all 4 phases and 14 lessons as you go." },
+    ]},
+    { type: "h3", text: "What You Will Be Able to Do" },
+    { type: "p", text: "By the end: build working AI tools on your Windows machine, understand and discuss LLMs and agentic AI confidently with colleagues, identify high-ROI opportunities in your manufacturing operation, and navigate ITAR and data security considerations unique to aerospace AI adoption." },
+    { type: "callout", variant: "warning", label: "ITAR Note Before We Begin", text: "Throughout this course we will emphasize: never send controlled technical data (drawings, process specs, material certs) to public AI APIs without legal clearance. Phase 4 covers exactly how to handle this safely." },
+    { type: "h3", text: "Your 6-Month Roadmap" },
+    { type: "grid", items: [
+      { title: "Phase 1 — Weeks 1-4", text: "Foundation: how LLMs work, the model landscape, Windows dev setup, your first API call." },
+      { title: "Phase 2 — Weeks 5-12", text: "Build: prompt engineering, RAG document Q&A, Windows applications your team can actually use." },
+      { title: "Phase 3 — Weeks 13-20", text: "Agentic: AI agents, tool use, multi-agent systems for complex aerospace workflows." },
+      { title: "Phase 4 — Weeks 21-26", text: "Industry: aerospace use cases, ITAR compliance, building the business case for leadership." },
+    ]},
+  ],
+  quizzes: [
+    { question: "What is the best way to think about AI in aerospace manufacturing?", options: ["AI will replace most engineering jobs within 2 years", "AI augments human expertise — handling repetitive analysis while humans provide judgment and accountability", "AI is only useful for software companies", "We should wait until AI is more mature before considering adoption"], correct: 1, explanation: "AI in aerospace is most powerful as an augmentation tool. It processes documents faster and drafts communications, but human engineers must validate every output — especially in safety-critical applications." },
+    { question: "Which of these is the most important reason to learn prompt engineering?", options: ["Prompt engineering replaces the need to write any code", "The quality of your prompt determines the quality and reliability of AI outputs", "Prompting is required by AS9100 documentation standards", "It reduces API costs by 90%"], correct: 1, explanation: "Prompting is the primary way you control AI behavior. A poorly written prompt produces unreliable results regardless of how good the model is — especially critical in aerospace where output quality affects safety and compliance." },
+    { question: "This course is designed for someone who already has which background?", options: ["A PhD in machine learning and 5+ years of software engineering", "Some experience using AI tools like ChatGPT or Claude, some coding exposure, and works in aerospace manufacturing", "No prior experience with AI or coding whatsoever", "A software developer with no manufacturing experience"], correct: 1, explanation: "The course is specifically designed for aerospace manufacturing professionals with basic AI familiarity and some coding exposure — exactly bridging the gap between casual AI user and practical AI builder." },
+  ]
+},
+{
+  phase: "Phase 1", phaseColor: "#c84b11",
+  title: "How LLMs Actually Work",
+  subtitle: "Demystify the technology. No math required — just the mental models that make everything click.",
+  time: "35 min", type: "Core Concept",
+  video: { id: "LPZh9BOjkQs", title: "But what is a GPT? Visual intro to Transformers (3Blue1Brown, 26 min)" },
+  content: [
+    { type: "p", text: "Most people use AI like a black box. That is fine for casual use — but if you want to build with it confidently and catch when it is wrong, you need a working mental model. Three key ideas cover 90% of what you need to know." },
+    { type: "h3", text: "Idea 1: Tokens, Not Words" },
+    { type: "p", text: "LLMs don't read words the way humans do. They read tokens — small chunks of text converted to numbers. A token is roughly 3-4 characters on average. Every model has a context window — a hard limit on how many tokens it can process in one conversation. Think of it as the model's working memory." },
+    { type: "grid", items: [
+      { title: "GPT-4o", text: "~128,000 token context window — roughly 96,000 words or about 320 pages of text." },
+      { title: "Claude Sonnet", text: "~200,000 token context window — roughly 150,000 words or about 500 pages." },
+      { title: "Gemini 1.5 Pro", text: "~1,000,000 token context window — roughly 750,000 words, a small library." },
+      { title: "Local Models (Llama)", text: "Typically 8,000-128,000 tokens depending on your hardware configuration." },
+    ]},
+    { type: "callout", variant: "info", label: "Aerospace Example", text: "A 50-page AS9100 quality manual is roughly 25,000 tokens — easily fits in Claude or GPT-4o's context window. You can paste the whole document and ask specific questions about clauses. We build exactly this in Phase 2." },
+    { type: "h3", text: "Idea 2: Prediction, Not Understanding" },
+    { type: "p", text: "LLMs don't understand text the way a human expert does. They predict: given all the text so far, what token is statistically most likely to come next? This process repeats billions of times per second. The result is remarkably human-like text — but it is pattern completion, not genuine comprehension." },
+    { type: "p", text: "This is why LLMs can seem brilliant (they have absorbed enormous amounts of human knowledge) and also confidently wrong. When a model generates a plausible-sounding but incorrect fact, that is called hallucination — and it is a fundamental characteristic of how these systems work, not a temporary bug." },
+    { type: "callout", variant: "warning", label: "Critical for Aerospace", text: "LLMs can generate convincing but incorrect specifications, tolerances, material properties, or standards references. An LLM might confidently cite a standard with the wrong requirement. Always verify AI-generated technical claims against authoritative sources. AI drafts — engineers verify." },
+    { type: "h3", text: "Idea 3: How Models Get Their Capabilities" },
+    { type: "grid", items: [
+      { title: "1. Pre-training", text: "Model processes trillions of words from the internet, books, and code. Learns statistical patterns of language. Takes months and millions of dollars." },
+      { title: "2. Fine-tuning", text: "Model is further trained on curated examples of good conversations. Shapes it toward being helpful and following instructions precisely." },
+      { title: "3. RLHF", text: "Reinforcement Learning from Human Feedback — humans rate responses, model learns to produce higher-rated outputs. How Claude and ChatGPT become helpful assistants." },
+      { title: "4. Prompting (Your Tool)", text: "At runtime, you guide behavior through text. No re-training needed. This is 80% of practical AI development work." },
+    ]},
+    { type: "h3", text: "Temperature — One Key Setting" },
+    { type: "p", text: "Temperature (0 to 1) controls how much randomness the model uses. At 0: always picks the most likely next token — very consistent, somewhat rigid. At 1: samples more randomly — more creative but less predictable. For aerospace technical work (spec analysis, compliance checking), use temperature 0. For drafting proposals or brainstorming, 0.3-0.7 works well." },
+  ],
+  quizzes: [
+    { question: "An LLM confidently states that Ti-6Al-4V has a yield strength of 180 ksi, but the correct value is 130 ksi. What most likely happened?", options: ["The model is broken and needs to be replaced", "The model predicted a plausible-sounding value based on training patterns — this is called hallucination", "The user provided the wrong context window setting", "This would never happen with a production-grade model"], correct: 1, explanation: "This is hallucination — one of the most important LLM limitations to understand. Models predict statistically likely text, not verified facts. For any safety-critical specification, always cross-reference AI outputs with authoritative sources like material data sheets and AMS standards." },
+    { question: "Your quality manual is 300 pages. Which model would be most suitable for analyzing the entire document in a single prompt?", options: ["GPT-4o — it is the most capable model overall", "Claude Haiku — it is the fastest model available", "Gemini 1.5 Pro — its 1M token context window handles the full document comfortably", "Any local Llama model — they handle long documents best"], correct: 2, explanation: "300 pages is roughly 150,000 tokens. Gemini 1.5 Pro's 1M token context window handles this comfortably. GPT-4o's 128K window would be tight. Claude Sonnet's 200K window could also work for most 300-page manuals." },
+    { question: "What does setting temperature to 0 do when calling an LLM API?", options: ["Makes the model respond much faster", "Makes the model always pick the most probable next token, producing consistent and repeatable outputs", "Disables the model's content safety filters", "Significantly reduces the cost per API call"], correct: 1, explanation: "Temperature 0 makes the model deterministic — it always picks the highest-probability token. This is ideal for technical tasks like spec analysis or compliance checking where you want consistent, repeatable results rather than creative variation." },
+  ]
+},
+{
+  phase: "Phase 1", phaseColor: "#c84b11",
+  title: "The LLM Model Landscape",
+  subtitle: "Navigate the major AI models confidently — know which to use when and why.",
+  time: "30 min", type: "Reference + Concept",
+  video: { id: "EWvNQjAaOHw", title: "How I Use LLMs — The Full Model Ecosystem: ChatGPT, Claude, Gemini & More (Andrej Karpathy, 2h11m)" },
+  content: [
+    { type: "p", text: "New AI models launch constantly. Rather than chasing every announcement, you need a stable decision framework. The landscape breaks into three tiers: frontier cloud models, open-source models you can run locally, and specialized models built for specific tasks." },
+    { type: "h3", text: "Frontier Cloud Models" },
+    { type: "grid", items: [
+      { title: "Claude (Anthropic)", text: "Haiku (fast/cheap), Sonnet (balanced), Opus (most capable). Exceptional at long documents, careful reasoning, and complex instructions. Strong safety design — well suited to regulated industries. Best for: document analysis, technical writing, compliance work." },
+      { title: "GPT-4o (OpenAI)", text: "Highly capable and multimodal (text + images + audio). Massive developer ecosystem and integrations. Powers GitHub Copilot. Best for: code generation, general tasks, and analyzing images of parts or drawings." },
+      { title: "Gemini 1.5 Pro (Google)", text: "Industry-leading context window (1M tokens). Deep Google Workspace integration. Best for: very long document analysis, organizations already using Google ecosystem." },
+      { title: "Smaller Models (Haiku, GPT-4o-mini)", text: "Smaller, faster, much cheaper versions of flagship models. 90% of capability at 10% of cost. Best for: high-volume tasks like summarizing many reports, classification, and data extraction." },
+    ]},
+    { type: "h3", text: "Open-Source and Local Models" },
+    { type: "p", text: "These models run entirely on your own hardware — no internet required, no data leaves your network, no API costs per query. This makes them the only appropriate choice for ITAR-controlled or sensitive proprietary data." },
+    { type: "grid", items: [
+      { title: "Llama 3.2 (Meta)", text: "Best overall open-source model family. 8B parameter version runs on a modern laptop. 70B parameter version needs a workstation with a dedicated GPU. Excellent general capability." },
+      { title: "Mistral 7B", text: "Exceptionally efficient — strong performance for its size. Runs fast on modest hardware. Good for document summarization and classification tasks." },
+      { title: "Phi-3 (Microsoft)", text: "Small but surprisingly capable. Designed to run on edge hardware. Good for constrained Windows environments without dedicated GPUs." },
+      { title: "How to Run Them", text: "Ollama (ollama.com) is the easiest Windows installer — one command downloads and runs any of these models locally. LM Studio provides a GUI if you prefer no command line." },
+    ]},
+    { type: "callout", variant: "warning", label: "The ITAR Decision Rule", text: "If data might be ITAR-controlled or CUI — use a local model only. If data is confidential but not legally controlled — consider a private enterprise cloud API with a Data Processing Agreement. If data is non-sensitive — any cloud API is acceptable. When in doubt, use local. We cover this in detail in Phase 4." },
+    { type: "callout", variant: "success", label: "Quick Decision Guide", text: "Sensitive/ITAR data  →  Local model (Ollama + Llama or Mistral)\nLong document analysis (100+ pages)  →  Claude Sonnet or Gemini\nCode generation  →  GPT-4o or Claude Sonnet\nHigh-volume, cost-sensitive tasks  →  Claude Haiku or GPT-4o-mini\nMaximum reasoning capability  →  Claude Opus or GPT-4o\nOffline or air-gapped environment  →  Ollama + Llama 3.2" },
+  ],
+  quizzes: [
+    { question: "Your team needs to analyze proprietary machining process specs for a defense contract component. Which approach is most appropriate?", options: ["GPT-4o via the public OpenAI API — most capable model", "Claude Opus via the public Anthropic API — best for document analysis", "Llama 3.2 running locally via Ollama — data never leaves your network", "Gemini 1.5 Pro — largest context window for long documents"], correct: 2, explanation: "For proprietary data that may be ITAR-controlled, local models are the only appropriate choice. The data never leaves your network. Cloud APIs — regardless of provider security claims — introduce legal and compliance risk for controlled technical data." },
+    { question: "You need to summarize 500 incoming supplier quality reports per month. Cost and speed matter most. Which model tier is most appropriate?", options: ["Claude Opus — most capable model ensures best accuracy", "GPT-4o-mini or Claude Haiku — smaller models built for high-volume, cost-efficient tasks", "A local Llama model — avoids all API costs", "Gemini 1.5 Pro — can analyze all documents in one giant context"], correct: 1, explanation: "Mini or Haiku-tier models cost roughly 10x less than flagship models and are fast. For high-volume, relatively straightforward tasks like summarization, they deliver excellent ROI. Reserve flagship models for complex reasoning tasks that genuinely need that capability." },
+    { question: "What is the most reliable way to determine which LLM is best for your specific aerospace quality tasks?", options: ["Check the latest MMLU benchmark leaderboard rankings", "Use whichever model has the most GitHub stars or press coverage", "Run 5 representative real tasks from your work through 2-3 models and compare the outputs directly", "Choose the most expensive model — higher cost means higher quality"], correct: 2, explanation: "Generic benchmarks don't reflect your specific domain and task types. The only reliable method is empirical testing on your actual work. A model that scores well on general benchmarks but struggles with aerospace terminology is less useful than one that handles your domain well." },
+  ]
+},
+{
+  phase: "Phase 1", phaseColor: "#c84b11",
+  title: "Windows Dev Setup",
+  subtitle: "Get your machine ready to build AI-powered tools. Step-by-step, nothing assumed.",
+  time: "45 min", type: "Technical Setup",
+  video: { id: "YYXdXT2l-Gg", title: "Python for Beginners: Setup and First Steps (Programming with Mosh, 6 min)" },
+  content: [
+    { type: "p", text: "This lesson walks through setting up a proper AI development environment on Windows. Follow each step in order. You will be switching between this course and your computer — that is expected and normal." },
+    { type: "h3", text: "Step 1 — Install Python 3.11+" },
+    { type: "p", text: "Go to python.org/downloads and download the latest Python 3.11+ installer for Windows. Important: do NOT use the Microsoft Store version — it has PATH issues that break many tools." },
+    { type: "callout", variant: "warning", label: "Do Not Skip This Step", text: "During installation, check the box that says 'Add Python to PATH' BEFORE clicking Install Now. If you miss this, many commands will not work. Verify the install worked: open Command Prompt and type: python --version" },
+    { type: "h3", text: "Step 2 — Install VS Code" },
+    { type: "p", text: "Download Visual Studio Code from code.visualstudio.com. After installing, open it and install these extensions from the Extensions panel (Ctrl+Shift+X): Python by Microsoft, and Jupyter. Optional but recommended: GitHub Copilot for AI-assisted coding." },
+    { type: "h3", text: "Step 3 — Create Your Project and Virtual Environment" },
+    { type: "callout", variant: "info", label: "Run these commands in VS Code Terminal (Ctrl+backtick)", text: "mkdir ai-aerospace\ncd ai-aerospace\npython -m venv venv\nvenv\\Scripts\\activate\n\nYou will see (venv) appear in your prompt — that means it is working.\n\nNow install the AI libraries:\npip install anthropic openai python-dotenv" },
+    { type: "p", text: "A virtual environment isolates your project's dependencies so different projects don't conflict with each other. It is standard practice — always activate it before working on your project." },
+    { type: "h3", text: "Step 4 — Secure Your API Keys" },
+    { type: "p", text: "Never hardcode API keys directly in your code. If you share the file or push it to GitHub, your key is exposed. Instead, use a .env file to keep keys separate from code." },
+    { type: "callout", variant: "info", label: "Create a file called .env in your project folder", text: "ANTHROPIC_API_KEY=sk-ant-your-key-here\nOPENAI_API_KEY=sk-your-key-here\n\nGet your Anthropic key at: console.anthropic.com\nGet your OpenAI key at: platform.openai.com\n\nAlso create a .gitignore file containing just one line: .env\nThis prevents the key from ever being accidentally shared." },
+    { type: "h3", text: "Step 5 — Install Ollama for Local Models" },
+    { type: "p", text: "Ollama lets you run powerful AI models entirely on your Windows machine — no API costs and no data leaving your network. This is essential for any sensitive aerospace data." },
+    { type: "callout", variant: "success", label: "Ollama Setup — All Commands", text: "1. Download from ollama.com (Windows installer, one click)\n2. After install, open Command Prompt and run:\n   ollama pull llama3.2\n   (downloads about 2GB — takes a few minutes)\n3. Test it:\n   ollama run llama3.2\n   Type any question and press Enter\n4. Type /bye to exit\n\nYou now have a fully local AI running on your own machine with no ongoing costs." },
+    { type: "h3", text: "Common Troubleshooting" },
+    { type: "grid", items: [
+      { title: "python not recognized", text: "Python was not added to PATH during install. Reinstall Python and check the 'Add to PATH' box, or manually add the Python directory to your system PATH environment variable." },
+      { title: "pip not found", text: "Run: python -m pip install --upgrade pip. If that also fails, run: python -m ensurepip" },
+      { title: "venv will not activate", text: "Open PowerShell as administrator and type: Set-ExecutionPolicy RemoteSigned. Then try activating again with venv\\Scripts\\activate." },
+      { title: "Ollama will not start", text: "Check that Windows Defender is not blocking it. Add an exception for ollama.exe in Windows Security > Virus and Threat Protection > Exclusions." },
+    ]},
+  ],
+  quizzes: [
+    { question: "Why should you use a virtual environment (venv) for AI projects?", options: ["It makes Python code run significantly faster", "It isolates each project's package dependencies, preventing version conflicts between different tools you build", "It is required by the Anthropic and OpenAI APIs to function", "It automatically encrypts your API keys for security"], correct: 1, explanation: "Virtual environments isolate dependencies per project. Without them, installing a new package for one project can break another. This is standard Python development practice — especially important when managing multiple AI tools that may require different library versions." },
+    { question: "Where should you store your Anthropic API key?", options: ["Directly in your Python script as a variable: api_key = 'sk-ant-...'", "In a .env file that is listed in .gitignore, and loaded at runtime with python-dotenv", "In a Word document on your desktop for easy access", "In a comment at the top of every Python file that uses it"], correct: 1, explanation: "API keys in code files are a serious security risk — they get accidentally committed to GitHub or shared in code reviews. A .env file keeps them separate from your code, and .gitignore prevents them from being tracked by version control systems." },
+    { question: "What is the main advantage of running Ollama with a local Llama model instead of using a cloud API?", options: ["Local models are always more accurate than any cloud model", "Data never leaves your machine — no API cost per query, no network transmission, no data sent to any third party", "Local models have larger context windows than all cloud models", "Ollama models work without any installation or setup"], correct: 1, explanation: "Local models via Ollama are essential for sensitive aerospace data. Your proprietary process specs, drawing details, and technical data stay entirely on your machine. This is the only appropriate approach for ITAR-controlled or CUI data." },
+  ]
+},
+{
+  phase: "Phase 1", phaseColor: "#c84b11",
+  title: "Your First API Call",
+  subtitle: "Write real Python code that talks to an AI. Build an aerospace materials assistant.",
+  time: "50 min", type: "Hands-On Coding",
+  video: { id: "1bUy-1hGZpI", title: "Anthropic Claude API — Getting Started (15 min)" },
+  content: [
+    { type: "p", text: "This is the lesson where theory becomes practice. We go from Python installed to a working AI tool step by step. By the end you will understand the core pattern that everything else in this course builds on." },
+    { type: "h3", text: "Your First Script" },
+    { type: "callout", variant: "info", label: "Create first_call.py in your project folder:", text: "import anthropic\nfrom dotenv import load_dotenv\n\nload_dotenv()  # reads your .env file automatically\n\nclient = anthropic.Anthropic()  # reads ANTHROPIC_API_KEY from .env\n\nmessage = client.messages.create(\n    model='claude-opus-4-5',\n    max_tokens=1024,\n    messages=[\n        {\n            'role': 'user',\n            'content': 'What are the key mechanical properties of Ti-6Al-4V titanium alloy used in aerospace?'\n        }\n    ]\n)\n\nprint(message.content[0].text)" },
+    { type: "p", text: "Run it with: python first_call.py — you should see a detailed response about Ti-6Al-4V. You just made your first API call." },
+    { type: "h3", text: "Adding a System Prompt" },
+    { type: "p", text: "The system prompt is a set of instructions that shapes the model's entire behavior for a conversation. It defines the AI's role, expertise, output format, and any rules it must follow. This is your most powerful tool." },
+    { type: "callout", variant: "info", label: "Upgraded version with system prompt:", text: "message = client.messages.create(\n    model='claude-opus-4-5',\n    max_tokens=1024,\n    system=\"\"\"You are an aerospace materials expert assistant.\nWhen given a material or alloy name, provide:\n1. Key mechanical properties (yield strength, UTS, elongation)\n2. Relevant aerospace standards (AMS, ASTM spec numbers)\n3. Common manufacturing considerations\n4. Typical aerospace applications\n\nIf you are uncertain about any specification, say so explicitly\nrather than guessing. Always recommend verifying against\ncurrent AMS/ASTM documentation.\"\"\",\n    messages=[\n        {'role': 'user', 'content': 'Ti-6Al-4V STA condition'}\n    ]\n)" },
+    { type: "h3", text: "Understanding the Response Object" },
+    { type: "grid", items: [
+      { title: "message.content[0].text", text: "The actual text response from the model — this is what you will use in almost every script you write." },
+      { title: "message.usage.input_tokens", text: "How many tokens you sent in the request. Affects the cost of each API call." },
+      { title: "message.usage.output_tokens", text: "How many tokens the model generated in response. Also affects cost." },
+      { title: "message.stop_reason", text: "'end_turn' means normal completion. 'max_tokens' means the response was cut off — increase max_tokens if this happens." },
+    ]},
+    { type: "callout", variant: "success", label: "What You Just Built", text: "A working command-line AI assistant that answers aerospace materials questions. This pattern — system prompt plus user message plus response — is the foundation of everything else in this course. Every AI tool you build is a variation and extension of this core structure." },
+  ],
+  quizzes: [
+    { question: "What is the purpose of the system prompt in an API call?", options: ["It sets the temperature and token limit for the response", "It defines the model's role, expertise, output format, and behavioral rules for the entire conversation", "It is required in every API call or the request will fail with an error", "It stores conversation history between different sessions"], correct: 1, explanation: "The system prompt is your primary tool for shaping AI behavior. It persists across the entire conversation and defines how the model responds — its role, expertise, tone, output format, and any constraints. Mastering system prompts is the core of practical AI development." },
+    { question: "Your script returns a response but the text is cut off mid-sentence. What should you adjust?", options: ["Increase the temperature setting", "Decrease the temperature setting", "Increase the max_tokens parameter to give the model more room to complete its response", "Change to a different AI model"], correct: 2, explanation: "When message.stop_reason is 'max_tokens', the model ran out of allowed output space. Increasing max_tokens gives it room to complete. Note that higher max_tokens increases cost — set a reasonable ceiling for your use case rather than an unnecessarily high value." },
+    { question: "Why should your system prompt include the instruction 'If you are uncertain about any specification, say so explicitly rather than guessing'?", options: ["It is required by the Anthropic API terms of service", "It reduces API response time significantly", "It instructs the model to express uncertainty rather than generating plausible-sounding but incorrect technical data", "It automatically cross-references the response against AMS standards"], correct: 2, explanation: "This instruction directly combats hallucination in technical contexts. Models default to being helpful, which can mean generating plausible specifications even when uncertain. Explicitly requiring expressions of uncertainty dramatically reduces confident errors in technical output — critical for aerospace applications." },
+  ]
+},
+{
+  phase: "Phase 2", phaseColor: "#1c4a7a",
+  title: "Prompt Engineering",
+  subtitle: "Turn vague AI outputs into precise, reliable results using proven techniques.",
+  time: "40 min", type: "Core Skill",
+  video: { id: "jC4v5AS4NZ0", title: "Prompt Engineering for Developers (Andrew Ng — DeepLearning.ai, 60 min)" },
+  content: [
+    { type: "p", text: "The difference between a useful AI tool and a frustrating one is usually the quality of the prompt. Prompt engineering is a learnable set of techniques that dramatically improves output quality, consistency, and reliability in production systems." },
+    { type: "h3", text: "Technique 1: Specify Format Explicitly" },
+    { type: "p", text: "Vague prompts produce inconsistent outputs. Specifying exactly what format you want — fields, allowed values, structure — makes outputs reliable and processable." },
+    { type: "callout", variant: "success", label: "Explicit format example:", text: "Summarize this inspection report using this exact format:\n\nSTATUS: [PASS / FAIL / CONDITIONAL]\nNON-CONFORMANCES: [bullet list, or 'None found']\nAFFECTED PARTS: [part numbers if mentioned]\nRECOMMENDED ACTION: [one sentence]\n\nUse technical language appropriate for a quality engineer." },
+    { type: "h3", text: "Technique 2: Chain-of-Thought Reasoning" },
+    { type: "p", text: "For complex analysis tasks, ask the model to reason step by step before giving a conclusion. This dramatically improves accuracy on multi-step problems." },
+    { type: "callout", variant: "info", label: "Aerospace chain-of-thought example:", text: "Review this dimensional inspection data. Work through these steps:\n\nStep 1: List every dimension measured and its actual value\nStep 2: Identify which dimensions are outside tolerance\nStep 3: For each out-of-tolerance dimension, classify severity:\n   Critical: affects safety or primary function\n   Major: affects fit, form, or function\n   Minor: cosmetic or non-functional\nStep 4: Recommend disposition: use-as-is, rework, or scrap\n\nShow your reasoning for each step before giving your final recommendation." },
+    { type: "h3", text: "Technique 3: Explicit Uncertainty Handling" },
+    { type: "callout", variant: "warning", label: "Always Include This in Technical Prompts", text: "Add to every aerospace system prompt:\n\n'If you are uncertain about any technical specification, material property, or standards reference, say so explicitly rather than guessing. Indicate your confidence level when relevant.'\n\nThis single instruction dramatically reduces confident hallucinations in technical contexts." },
+    { type: "h3", text: "Technique 4: Structured JSON Output" },
+    { type: "p", text: "When you need to process AI output programmatically — feed it into another tool, store it in a database, or populate a report template — ask for JSON output with a defined schema." },
+    { type: "callout", variant: "info", label: "JSON output example:", text: "Analyze this NCR and return ONLY a JSON object with no other text:\n\n{\n  'ncr_number': string,\n  'status': 'open' | 'closed' | 'pending',\n  'severity': 'critical' | 'major' | 'minor',\n  'affected_parts': [list of part numbers],\n  'root_cause_category': string,\n  'disposition': string,\n  'requires_customer_notification': boolean\n}" },
+    { type: "h3", text: "Technique 5: Role Plus Constraints" },
+    { type: "callout", variant: "success", label: "Complete system prompt template for aerospace:", text: "You are a quality engineering assistant for an AS9100-certified aerospace component manufacturer.\n\nYour capabilities:\n- Analyze inspection reports and identify non-conformances\n- Reference AS9100, AS9102, and NADCAP requirements by clause\n- Draft corrective action documentation\n\nYour constraints:\n- Never provide a final disposition decision — always flag for human engineer review\n- If uncertain about a spec value, say so explicitly — never guess\n- Do not reference standards you cannot cite by clause number\n- Flag any finding that could affect airworthiness as CRITICAL" },
+  ],
+  quizzes: [
+    { question: "An AI consistently gives differently formatted summaries of inspection reports, making them hard to process automatically. Which technique most directly solves this?", options: ["Increase temperature to make outputs more varied and creative", "Use chain-of-thought reasoning to improve logical analysis", "Specify the exact output format in the prompt, including field names and allowed values", "Switch to a more powerful and expensive model"], correct: 2, explanation: "Format specification directly enforces consistent output structure. When you tell the model exactly what fields to populate and in what order, it reliably produces the same format each time — making outputs processable by downstream tools and pipelines." },
+    { question: "You need AI to analyze a complex dimensional inspection dataset with 30 measurements. Results are inconsistent and sometimes miss non-conformances. Which technique most improves accuracy?", options: ["Chain-of-thought: instruct the model to work through each measurement step by step before concluding", "JSON output: ask for a structured response format", "Few-shot examples: show it one example of a good analysis", "Reduce max_tokens to force a more concise answer"], correct: 0, explanation: "Chain-of-thought reasoning is most effective for complex multi-step analysis. Forcing the model to reason through each measurement systematically before drawing conclusions is far less likely to skip non-conformances or make classification errors." },
+    { question: "Why is the constraint 'Never provide a final disposition decision — flag for human engineer review' important in an aerospace AI system prompt?", options: ["It reduces API costs significantly", "It makes responses shorter and faster to generate", "It preserves human accountability and prevents AI from autonomously making safety-critical decisions", "It is required by the Anthropic API terms of service for aerospace customers"], correct: 2, explanation: "Disposition decisions (use-as-is, rework, scrap) can have safety implications for end users of aircraft. AI should draft recommendations and surface information — but qualified human engineers must make and be accountable for final decisions. This aligns with AS9100 traceability requirements." },
+  ]
+},
+{
+  phase: "Phase 2", phaseColor: "#1c4a7a",
+  title: "RAG & Document Q&A",
+  subtitle: "Build a system that answers questions about your own internal documents.",
+  time: "50 min", type: "Applied Building",
+  video: { id: "T-D1OfcDW1M", title: "RAG from Scratch — Retrieval Augmented Generation (LangChain, 15 min)" },
+  content: [
+    { type: "p", text: "RAG — Retrieval-Augmented Generation — is the single most valuable AI capability for most aerospace manufacturers. It lets you ask plain English questions of your own documents: quality manuals, SOPs, supplier records, standards libraries, inspection procedures. No more keyword searching through 500-page PDFs." },
+    { type: "h3", text: "How RAG Works — Step by Step" },
+    { type: "grid", items: [
+      { title: "1. Chunk the Document", text: "Split your document into overlapping segments of roughly 500 words each. Overlap ensures concepts that span page breaks are not split apart." },
+      { title: "2. Create Embeddings", text: "Convert each chunk into a numerical vector that captures its semantic meaning. Similar text produces similar vectors, enabling meaning-based search." },
+      { title: "3. Store in Vector DB", text: "Save all vectors in a searchable database. ChromaDB is free, runs locally on Windows, and requires nothing beyond pip install." },
+      { title: "4. Query at Runtime", text: "Convert the user's question to a vector, find the 3-5 most similar document chunks, and send those chunks plus the question to the LLM." },
+    ]},
+    { type: "callout", variant: "success", label: "Install Everything You Need", text: "pip install chromadb sentence-transformers pypdf2 langchain\n\nAll of these run locally — no cloud service, no data leaves your machine.\nchromadb: local vector database\nsentence-transformers: creates embeddings locally (no API key needed)\npypdf2: extracts text from PDF files\nlangchain: simplifies the RAG pipeline code" },
+    { type: "h3", text: "The Core RAG Pattern" },
+    { type: "callout", variant: "info", label: "How the code flows (pseudocode):", text: "# 1. Load and chunk your document\nchunks = load_and_split_pdf('quality_manual.pdf')\n\n# 2. Create embeddings and store in ChromaDB\nvectordb = ChromaDB()\nvectordb.add(chunks, embeddings=local_embedding_model)\n\n# 3. At query time:\nquestion = 'What is our procedure for handling non-conforming material?'\nrelevant_chunks = vectordb.similarity_search(question, k=3)\n\n# 4. Send to LLM with context\nresponse = claude.messages.create(\n    system='Answer based only on the provided document excerpts. Cite the section you are drawing from.',\n    messages=[{'role': 'user', \n               'content': f'Context from manual:\\n{relevant_chunks}\\n\\nQuestion: {question}'}]\n)" },
+    { type: "h3", text: "Highest-Value Aerospace RAG Applications" },
+    { type: "grid", items: [
+      { title: "Quality Manual Q&A", text: "Ask 'What is our NCR disposition procedure?' and get the exact clause and page reference in seconds. Works for AS9100, NADCAP, and customer-specific requirements." },
+      { title: "Standards Library", text: "Build a searchable index of AMS, ASTM, and NADCAP specifications. Find the right requirement instantly without manually searching each document." },
+      { title: "Supplier Records", text: "Query qualification history, past audit findings, and approval scope across all supplier files without navigating folder structures manually." },
+      { title: "Inspection Procedures", text: "Pull the correct inspection procedure for a given part number, material, or process without searching through folder hierarchies." },
+    ]},
+    { type: "callout", variant: "warning", label: "Data Security for Aerospace RAG", text: "Use local embeddings (sentence-transformers library) for ANY internal document — quality manuals, supplier records, process specs. Document content is converted to vectors entirely on your machine and never transmitted anywhere externally.\n\nOnly use cloud embedding APIs for publicly available, non-sensitive documents that you have already licensed and published." },
+  ],
+  quizzes: [
+    { question: "Why can you not just paste your entire 500-page quality management system into a single ChatGPT prompt?", options: ["ChatGPT does not accept PDF files as input", "Context windows are limited in size, and sending 500 pages per query would be extremely expensive and often exceed token limits", "Quality management systems are copyrighted and cannot be used with AI tools", "The response would take too long to generate for practical use"], correct: 1, explanation: "RAG solves this by only sending the 2-3 most relevant pages to the model for each question. This reduces per-query cost by roughly 95% while actually improving accuracy, since the model focuses only on relevant content rather than trying to process everything at once." },
+    { question: "What does an 'embedding' represent in a RAG system?", options: ["A compressed version of the original document for more efficient storage", "A numerical vector that captures the semantic meaning of a text chunk, enabling similarity-based search", "The process of splitting large documents into smaller searchable chunks", "An encryption method for protecting sensitive document content"], correct: 1, explanation: "Embeddings are numerical vectors where semantically similar text produces similar vectors. This allows the system to find 'What is our NCR procedure?' and retrieve a chunk about 'non-conformance disposition process' even though the exact words do not match — it is meaning-based retrieval." },
+    { question: "For a RAG system querying your internal quality manuals, which embedding approach is most appropriate?", options: ["OpenAI text-embedding API — highest quality embeddings available", "Google Vertex AI embeddings — best for enterprise document search", "Local sentence-transformers library — embeddings created on your machine, document content never transmitted", "No embeddings needed — keyword search of documents is sufficient"], correct: 2, explanation: "Internal quality manuals contain proprietary process information that should never be transmitted to external APIs. sentence-transformers creates high-quality embeddings entirely on your local machine. The quality difference versus cloud embeddings is minimal for most quality document types." },
+  ]
+},
+{
+  phase: "Phase 2", phaseColor: "#1c4a7a",
+  title: "Building Windows Applications",
+  subtitle: "Turn Python scripts into real tools your colleagues can actually use.",
+  time: "45 min", type: "Applied Building",
+  video: { id: "VqgUkExPvLY", title: "Build a Streamlit App in 18 Minutes (Python Engineer)" },
+  content: [
+    { type: "p", text: "A Python script that only you can run from a terminal has limited value. A properly packaged application that a quality inspector or engineer can open and use immediately transforms how your team works. Three paths from script to deployable Windows tool." },
+    { type: "h3", text: "Path 1: Streamlit — Browser App in Minutes" },
+    { type: "p", text: "Streamlit converts Python code into a web app with almost no additional code. Run it on your machine and share the URL with anyone on the same network — no installation required on their machines." },
+    { type: "callout", variant: "info", label: "Install and run:", text: "pip install streamlit\nstreamlit run your_app.py\n\nAnyone on your local network can then open a browser and go to:\nhttp://your-ip-address:8501" },
+    { type: "callout", variant: "success", label: "Complete NCR Analysis App — save as ncr_app.py:", text: "import streamlit as st\nimport anthropic\nfrom dotenv import load_dotenv\n\nload_dotenv()\nclient = anthropic.Anthropic()\n\nst.set_page_config(page_title='NCR Analyzer', page_icon='airplane')\nst.title('NCR Analysis Assistant')\nst.caption('Paste inspection report text below for AI-assisted analysis')\n\nreport_text = st.text_area('Inspection Report Text', height=200,\n    placeholder='Paste your report here...')\n\nif st.button('Analyze Report', type='primary') and report_text:\n    with st.spinner('Analyzing...'):\n        response = client.messages.create(\n            model='claude-opus-4-5',\n            max_tokens=1000,\n            system='You are a quality engineering assistant. Analyze this inspection report and provide: STATUS, NON-CONFORMANCES found, SEVERITY classification, and RECOMMENDED ACTION. Flag for human review — do not make final disposition decisions.',\n            messages=[{'role': 'user', 'content': report_text}]\n        )\n    st.subheader('Analysis Results')\n    st.write(response.content[0].text)\n    st.download_button('Download Analysis', response.content[0].text, 'ncr_analysis.txt')" },
+    { type: "h3", text: "Path 2: Package as .exe with PyInstaller" },
+    { type: "p", text: "PyInstaller bundles your script and all its dependencies into a single .exe file that runs on any Windows machine — no Python installation required. Perfect for deploying to shop floor computers." },
+    { type: "callout", variant: "info", label: "Package your app:", text: "pip install pyinstaller\npyinstaller --onefile --windowed your_app.py\n\nThe .exe appears in the dist/ folder.\n--onefile: creates a single self-contained file\n--windowed: hides the terminal window for GUI applications" },
+    { type: "h3", text: "Path 3: Excel and Word Automation" },
+    { type: "callout", variant: "info", label: "Read from Excel, analyze with AI, write results back:", text: "pip install openpyxl python-docx\n\nimport openpyxl\nfrom anthropic import Anthropic\n\n# Read inspection data from existing Excel file\nwb = openpyxl.load_workbook('inspection_log.xlsx')\nws = wb.active\n\n# Process each row with AI\nclient = Anthropic()\nfor row in ws.iter_rows(min_row=2, values_only=True):\n    part_num, measurement, nominal, tolerance = row\n    # ... send to Claude, write result back to Excel column\n\nwb.save('inspection_log_with_ai_analysis.xlsx')" },
+    { type: "h3", text: "Choosing the Right Approach" },
+    { type: "grid", items: [
+      { title: "Streamlit — Best For", text: "Internal tools for non-technical staff. Dashboard-style views with charts. File upload capability. Fastest to build and iterate on." },
+      { title: ".exe — Best For", text: "Shop floor computers without Python. Air-gapped environments. Tools that need to work fully offline. When you cannot run a local web server." },
+      { title: "Excel/Word — Best For", text: "Teams that live in Office and will not change workflows. Data already in spreadsheets. Reporting that feeds existing templates." },
+      { title: "Tkinter GUI — Best For", text: "Native Windows look and feel. Single-user tools. Simple data entry forms. Works fully offline without requiring any browser." },
+    ]},
+  ],
+  quizzes: [
+    { question: "A quality inspector needs your AI tool but has no Python knowledge and works on a shop floor computer where you cannot install Python. What is the best approach?", options: ["Teach them Python so they can run the script themselves", "Build a Streamlit app on your machine and have them remote in", "Package the tool as an .exe with PyInstaller — it runs without any Python installation", "Wait for a commercial product that meets your exact needs"], correct: 2, explanation: "PyInstaller creates a self-contained .exe that bundles Python and all dependencies. The inspector double-clicks it like any Windows program. No installation, no command line, no Python knowledge required — exactly right for shop floor deployment." },
+    { question: "You want colleagues on the same office network to use your AI tool through their web browser without installing anything on their machines. Which approach fits best?", options: ["PyInstaller .exe — packages everything into one file", "Streamlit app — runs on your machine, accessible via browser URL on the local network", "Tkinter GUI — native Windows application window", "A Python Jupyter notebook they can open in VS Code"], correct: 1, explanation: "Streamlit runs a local web server. Anyone on the same network can access it via the browser at your machine's IP address and port 8501 — no installation needed on their machines. It is the fastest path from Python script to an accessible web tool." },
+    { question: "Your team tracks quality metrics in Excel. You want AI to analyze each row and add a Risk Assessment column automatically. Which library combination is most appropriate?", options: ["streamlit + anthropic for a web interface", "openpyxl + anthropic — read Excel rows, send to Claude, write results back to the same file", "pyinstaller + tkinter for a desktop GUI", "chromadb + sentence-transformers for semantic search"], correct: 1, explanation: "openpyxl reads and writes .xlsx files natively in Python. Combined with the Anthropic library, you iterate through each row of measurement data, send it to Claude for risk assessment, and write the result to a new column — all in the existing Excel file your team already uses." },
+  ]
+},
+{
+  phase: "Phase 3", phaseColor: "#1a6b3c",
+  title: "What Are AI Agents?",
+  subtitle: "Understand the shift from single-response AI to systems that plan, act, and iterate.",
+  time: "35 min", type: "Core Concept",
+  video: { id: "F8NKVhkZZWI", title: "AI Agents Explained — How They Work (IBM Technology, 10 min)" },
+  content: [
+    { type: "p", text: "Everything we have built so far follows one pattern: send a prompt, get a response. That is powerful but limited to single-step tasks. AI agents unlock multi-step, autonomous workflows where the AI can plan, use tools, check its own work, and iterate — completing complex tasks that would normally require hours of human effort." },
+    { type: "h3", text: "The Four Properties of an Agent" },
+    { type: "grid", items: [
+      { title: "Planning", text: "Agent breaks a complex goal into steps and decides the sequence — rather than responding in one shot. It decides what to do first, what information it needs, and in what order to proceed." },
+      { title: "Tool Use", text: "Agent can call functions you define: read_pdf(), query_database(), search_web(), write_report(), send_email(). The agent decides when to use which tool based on what it needs next." },
+      { title: "Loops and Iteration", text: "Agent can evaluate its own output, decide it is incomplete or needs correction, and try again — similar to how a human checks their work and revises." },
+      { title: "Memory and State", text: "Information persists between steps. The agent remembers what it found in step 1 and uses it to inform step 4, without you manually passing data between steps." },
+    ]},
+    { type: "h3", text: "A Concrete Aerospace Agent: Supplier Qualification" },
+    { type: "callout", variant: "info", label: "What the agent does autonomously:", text: "Goal: 'Process this supplier qualification package and recommend an approval decision'\n\nStep 1: read_pdf('supplier_qual_package.pdf')\n        Extracts: company name, certifications, processes, scope\n\nStep 2: query_database('approved_supplier_list', supplier_name)\n        Checks prior history and existing qualification status\n\nStep 3: search_nadcap_scope(supplier_name)\n        Verifies current NADCAP accreditation and commodity scope\n\nStep 4: compare_to_requirements(supplier_data, commodity)\n        Identifies gaps: missing NADCAP for heat treat\n\nStep 5: write_qualification_summary(all_findings)\n        Drafts structured recommendation report\n\n        HUMAN REVIEW CHECKPOINT — engineer reviews and decides" },
+    { type: "callout", variant: "warning", label: "Human-in-the-Loop Is Non-Negotiable for Aerospace", text: "Build human review checkpoints into every agentic workflow for: supplier qualification decisions, design disposition, audit findings, any output that affects airworthiness or compliance. The agent drafts and recommends — the engineer approves and takes accountability. This is both good practice and required for AS9100 traceability." },
+    { type: "h3", text: "The ReAct Pattern" },
+    { type: "p", text: "The most common agentic architecture is ReAct: Reason, Act, Observe, Repeat. The agent thinks about what to do, does it, observes the result, and repeats until the goal is achieved. This is how Claude Code, GitHub Copilot Workspace, and most production AI agents work internally." },
+    { type: "grid", items: [
+      { title: "Reason", text: "Model thinks: 'I need to find the supplier's NADCAP scope. I will use the search_nadcap tool with their company name as input.'" },
+      { title: "Act", text: "Model calls: search_nadcap(company='Precision Heat Treating Inc.')" },
+      { title: "Observe", text: "Tool returns: 'Accredited for Heat Treating (AC7102), valid through 2026-03'" },
+      { title: "Repeat", text: "Model reasons: 'Scope confirmed. Now I need to check if Heat Treating is required for this commodity...' and continues to the next step." },
+    ]},
+  ],
+  quizzes: [
+    { question: "What is the key difference between a standard LLM API call and an AI agent?", options: ["Agents use more powerful and expensive models for better results", "Agents respond faster due to parallel processing architecture", "Agents can plan multiple steps, use tools, observe results, and iterate — rather than responding in a single shot", "Agents do not require any programming — they work from natural language instructions alone"], correct: 2, explanation: "Planning plus tool use plus loops is what defines agentic behavior. A single API call, regardless of how sophisticated the model, is not an agent. An agent persists across multiple steps, acts on the world through tools, and adapts its plan based on what it discovers." },
+    { question: "An aerospace manufacturer wants to build an agent that automatically approves supplier qualifications without any human review to maximize speed. What is your assessment?", options: ["Good idea — AI is accurate enough for supplier qualification in regulated aerospace", "Acceptable if the agent only processes Tier 2 suppliers with less critical components", "Inappropriate — supplier qualification affects airworthiness and AS9100 requires human accountability for such decisions", "Fine as long as the agent uses a model with high benchmark accuracy scores"], correct: 2, explanation: "Supplier qualification is a safety-critical decision with compliance implications under AS9100 and customer flow-down requirements. AI should assist and accelerate human decision-making — not replace it for decisions with airworthiness implications. Autonomous approval would also be extremely difficult to justify in a DCMA or customer source inspection audit." },
+    { question: "In the ReAct agent pattern, what happens in the Observe step?", options: ["The agent waits for a human to provide additional instructions before continuing", "The agent reviews and records the result of its previous action before deciding what to do next", "The agent generates its final response to the user and ends the session", "The agent checks for new messages waiting in the input queue"], correct: 1, explanation: "Observe is when the agent processes the result of its last action (such as a tool call result) and updates its understanding before planning the next step. This feedback loop — reason, act, observe, repeat — is what enables agents to navigate complex multi-step workflows and handle unexpected or incomplete results." },
+  ]
+},
+{
+  phase: "Phase 3", phaseColor: "#1a6b3c",
+  title: "Tool Use & Agent Loops",
+  subtitle: "Give your AI access to real tools and build your first autonomous workflow.",
+  time: "55 min", type: "Hands-On Coding",
+  video: { id: "aqdWSYWC_LI", title: "Build an AI Agent with Tool Use — Claude API (Anthropic Dev, 20 min)" },
+  content: [
+    { type: "p", text: "Claude and GPT-4 support function calling — a way to define tools the model can invoke as it reasons through a problem. You define what tools exist and what they do. The model decides when and how to call them. Your code actually executes them and returns results." },
+    { type: "h3", text: "Defining Tools" },
+    { type: "p", text: "Each tool is defined as a JSON schema describing its name, purpose, and required parameters. The model reads these descriptions to understand when to use each tool. Clear, specific descriptions are essential." },
+    { type: "callout", variant: "info", label: "Tool definition format for Claude API:", text: "tools = [\n  {\n    'name': 'lookup_supplier',\n    'description': 'Look up a supplier in our approved supplier list and return their qualification status, approved commodities, and audit history.',\n    'input_schema': {\n      'type': 'object',\n      'properties': {\n        'supplier_name': {\n          'type': 'string',\n          'description': 'The full legal name of the supplier company'\n        },\n        'commodity': {\n          'type': 'string',\n          'description': 'The commodity or process type to check (e.g., machining, heat treat, NDT)'\n        }\n      },\n      'required': ['supplier_name']\n    }\n  }\n]" },
+    { type: "h3", text: "The Agent Loop" },
+    { type: "callout", variant: "info", label: "Core agent loop pattern:", text: "messages = [{'role': 'user', 'content': user_goal}]\n\nwhile True:\n    response = client.messages.create(\n        model='claude-opus-4-5',\n        max_tokens=2000,\n        tools=tools,\n        messages=messages\n    )\n    \n    # Final answer — agent is done\n    if response.stop_reason == 'end_turn':\n        print(response.content[0].text)\n        break\n    \n    # Agent wants to use a tool\n    tool_use = next(b for b in response.content if b.type == 'tool_use')\n    result = execute_tool(tool_use.name, tool_use.input)\n    \n    # Add result to conversation and loop again\n    messages.append({'role': 'assistant', 'content': response.content})\n    messages.append({\n        'role': 'user',\n        'content': [{\n            'type': 'tool_result',\n            'tool_use_id': tool_use.id,\n            'content': str(result)\n        }]\n    })" },
+    { type: "h3", text: "The Tool Execution Function" },
+    { type: "callout", variant: "success", label: "Map tool names to real Python functions:", text: "def execute_tool(tool_name, tool_input):\n    if tool_name == 'lookup_supplier':\n        return lookup_supplier_in_db(**tool_input)\n    elif tool_name == 'read_pdf':\n        return extract_text_from_pdf(tool_input['filepath'])\n    elif tool_name == 'search_standards':\n        return search_local_standards_db(tool_input['query'])\n    elif tool_name == 'write_report':\n        return generate_word_report(tool_input['content'], tool_input['filename'])\n    else:\n        return f'Unknown tool: {tool_name}'" },
+    { type: "h3", text: "Practical Tools for Aerospace Agents" },
+    { type: "grid", items: [
+      { title: "read_pdf(filepath)", text: "Extract text from inspection reports, certifications, qualification packages. Use pypdf2 or pdfplumber library." },
+      { title: "query_erp(part_number)", text: "Pull production history, open orders, revision level from your ERP system via its API or a database connection." },
+      { title: "search_standards(query)", text: "Search your local RAG database of AS9100, NADCAP, AMS specs that you built in the previous lesson." },
+      { title: "write_report(content)", text: "Generate formatted Word documents using python-docx. Returns the file path of the generated document." },
+    ]},
+    { type: "callout", variant: "success", label: "LangGraph — Framework for Complex Agents", text: "For production agents, LangGraph (pip install langgraph) handles the loop boilerplate and adds:\n- Built-in state management across all steps\n- Human-in-the-loop pause and resume capability\n- Retry logic for failed tool calls\n- Visual graph debugging interface\n\nDocumentation: langchain-ai.github.io/langgraph/" },
+  ],
+  quizzes: [
+    { question: "In an agent loop, the model returns a tool_use response instead of a text answer. What should your code do?", options: ["Stop the loop and display the partial response to the user immediately", "Ask the user to manually execute the requested operation themselves", "Execute the requested function with the model's parameters, add the result to the conversation, and call the model again", "Restart the entire agent from the beginning with a clearer initial prompt"], correct: 2, explanation: "The agent loop pattern: model requests tool, your code executes the real function, you return the result to the model, model uses the result to continue reasoning. This cycle repeats until the model has enough information to give a final text answer. The model orchestrates — your code executes." },
+    { question: "Why is it important to write very clear and specific descriptions for each tool in your tool definitions?", options: ["Longer descriptions reduce your API costs per call", "The model reads these descriptions to decide when and how to call each tool — unclear descriptions lead to wrong tool selection or incorrect parameters", "Tool descriptions are only used for documentation and code readability", "Descriptions must be under 50 characters or the API will reject the request"], correct: 1, explanation: "The model's only knowledge of your tools comes from their descriptions. If a tool is described vaguely, the model will not know when to call it or what parameters to pass. Treat tool descriptions like API documentation — precise, specific, with examples of when to use the tool." },
+    { question: "Your supplier qualification agent has been running for several minutes and has made 20 tool calls without finishing. What is the most likely cause and solution?", options: ["The model is too slow — switch to a faster cheaper model", "The agent may be stuck in a loop — add a maximum step count limit and review the tool call log to identify where it gets confused", "The tool definitions are too long and need to be shortened", "More RAM needs to be added to the computer running the agent"], correct: 1, explanation: "Infinite loops are a real risk in agentic systems. Always implement a maximum step counter. When debugging, log each tool call and its result to identify where the agent is getting confused or stuck. This logging is also important for aerospace traceability requirements." },
+  ]
+},
+{
+  phase: "Phase 3", phaseColor: "#1a6b3c",
+  title: "Multi-Agent Systems",
+  subtitle: "Orchestrate specialized agents working together on complex aerospace workflows.",
+  time: "40 min", type: "Advanced Concept",
+  video: { id: "pBsaOtDNBb8", title: "Multi-Agent AI Systems Explained (Andrew Ng, 20 min)" },
+  content: [
+    { type: "p", text: "Single agents are powerful. Multi-agent systems are transformative. Instead of one AI trying to do everything, you build specialized agents that each do one thing well, coordinated by an orchestrator. Each specialist can have its own tools, instructions, and context optimized for its specific task." },
+    { type: "h3", text: "Why Multiple Agents?" },
+    { type: "grid", items: [
+      { title: "Specialization", text: "A document extraction agent optimized for aerospace forms outperforms a generalist. Give each agent exactly the context and tools it needs — no more, no less." },
+      { title: "Parallelism", text: "Multiple agents can work simultaneously on different parts of a problem, reducing total time. While one reads the supplier package, another queries your ASL database." },
+      { title: "Manageability", text: "Smaller agents are easier to test, debug, and update independently. If the standards lookup fails, you fix that one agent without touching the rest of the system." },
+      { title: "Context Limits", text: "Very complex workflows accumulate too much history for one agent's context window. Breaking into specialists keeps each agent focused and within token limits." },
+    ]},
+    { type: "h3", text: "Common Multi-Agent Patterns" },
+    { type: "grid", items: [
+      { title: "Orchestrator to Workers", text: "One coordinator agent receives the goal and delegates subtasks to specialist agents. Workers report back and the coordinator assembles the final output. Like a project manager with a specialized team." },
+      { title: "Sequential Pipeline", text: "Agents pass output to the next in a chain: Extract, then Classify, then Analyze, then Draft, then Review. Each stage is optimized for its task and feeds the next." },
+      { title: "Parallel Panel", text: "Multiple agents independently analyze the same input (like peer review), then a synthesis agent combines their findings into a consolidated output." },
+      { title: "Generator Plus Critic", text: "One agent generates a draft; another critiques it; the generator revises. Loop until the critic approves or a quality threshold is reached." },
+    ]},
+    { type: "h3", text: "Aerospace Example: Full NCR Processing Pipeline" },
+    { type: "callout", variant: "info", label: "Six-agent NCR processing system:", text: "User uploads NCR document\n        |\n[Extraction Agent]\nPulls: part number, process, dimension, deviation, inspector name\n        |\n[Standards Agent]\nLooks up applicable tolerances and severity per AS9102\n        |\n[History Agent]\nQueries ERP for past NCRs on this part and process combination\n        |\n[Risk Agent]\nScores risk: deviation magnitude times history times downstream impact\n        |\n[Disposition Agent]\nDrafts recommendation: use-as-is, rework, or scrap with rationale\n        |\n[Report Agent]\nAssembles all findings into formatted Word document\n        |\nENGINEER REVIEWS AND APPROVES BEFORE ANY ACTION IS TAKEN" },
+    { type: "callout", variant: "warning", label: "Complexity Warning", text: "Multi-agent systems are significantly harder to debug, test, and maintain than single agents. Build and validate each agent individually before connecting them together. A well-tested single agent that works reliably is far more valuable than a complex multi-agent system that fails unpredictably. Add complexity only when the single-agent approach genuinely cannot meet your requirements." },
+  ],
+  quizzes: [
+    { question: "Your single NCR processing agent sometimes misclassifies severity because it does not account for downstream assembly impact. What multi-agent approach best addresses this?", options: ["Replace the agent with a more capable and expensive model", "Add a dedicated downstream impact specialist agent whose output feeds into the disposition agent", "Make the single agent's system prompt longer with more detailed instructions", "Increase the temperature setting to make it consider more possible outcomes"], correct: 1, explanation: "Specialist agents solve specialist problems. Downstream impact analysis requires different tools (BOM lookup, assembly tree traversal) and different expertise than NCR classification. A dedicated specialist with the right tools outperforms adding more instructions to an already complex agent." },
+    { question: "In a multi-agent NCR system, which pattern would you use to have both a quality engineer specialist and a manufacturing engineer specialist independently review the same finding?", options: ["Sequential Pipeline — one reviews after the other in sequence", "Parallel Panel — both review simultaneously and a synthesis agent combines their perspectives", "Generator plus Critic — one generates, the other critiques in a loop", "Orchestrator to Workers — one coordinator delegates to both in order"], correct: 1, explanation: "The Parallel Panel pattern mirrors a real engineering peer review. Both specialists analyze the same NCR independently from their own expertise, then a synthesis agent combines their views. This catches issues that any single perspective might miss — analogous to requiring dual signatures on a critical disposition." },
+    { question: "Why is logging every agent action, input, and output particularly important in aerospace multi-agent systems?", options: ["It makes the system run faster by caching results for reuse", "AS9100 requires traceability for quality decisions — you must reconstruct how an AI-assisted recommendation was generated for audit purposes", "It is required by Anthropic and OpenAI APIs for all enterprise accounts", "It reduces token usage by avoiding duplicate tool calls across agents"], correct: 1, explanation: "AS9100 clause 8.5.2 requires traceability for production and service provision. If an AI-assisted disposition is questioned in a DCMA audit or customer audit, you need complete records: which agents ran, what they analyzed, what they recommended, and who approved the final decision. Build this logging from the very beginning." },
+  ]
+},
+{
+  phase: "Phase 4", phaseColor: "#b8860b",
+  title: "Aerospace AI Use Cases",
+  subtitle: "A practical map of where AI creates the most value in component manufacturing.",
+  time: "40 min", type: "Strategic",
+  video: { id: "bvLRNMkFMGM", title: "AI in Manufacturing — Real Use Cases (Siemens Digital Industries, 12 min)" },
+  content: [
+    { type: "p", text: "You now have the technical skills. This lesson is about knowing where to aim them for maximum impact. The highest-ROI AI applications in aerospace component manufacturing cluster around five domains — and the right starting point is almost always document processing, not computer vision or complex machine learning." },
+    { type: "h3", text: "Domain 1: Quality and Inspection" },
+    { type: "grid", items: [
+      { title: "NCR Processing", text: "AI reads inspection reports, classifies non-conformances, and drafts corrective action documentation. Reduces NCR cycle time from hours to minutes. Most accessible first project for most teams." },
+      { title: "First Article Inspection (FAI)", text: "AI cross-references AS9102 FAI requirements against your documentation, flags missing elements, and drafts the FAI cover sheet from inspection data automatically." },
+      { title: "SPC Trend Analysis", text: "AI analyzes control chart data narratively: 'This dimension shows a downward trend over the last 8 parts, approaching the lower control limit. Recommend tool inspection before the next run.'" },
+      { title: "Computer Vision (Advanced)", text: "Camera-based surface defect detection and dimensional verification. High value but requires specialized CV models and hardware — better as a Phase 2 initiative after LLM tools are established." },
+    ]},
+    { type: "h3", text: "Domain 2: Compliance and Documentation" },
+    { type: "callout", variant: "success", label: "Highest-ROI Compliance Applications", text: "AS9100/NADCAP clause lookup: 'What does clause 8.5.2 require for production verification?' — instant answer with the clause reference\n\nAudit preparation: AI reviews your QMS documentation against a standard and generates a gap report with specific clause citations\n\nWork instruction drafting: AI generates first-draft SOPs from your process description — engineers refine and approve\n\nTraining materials: AI creates comprehension quizzes and knowledge checks from existing procedure documents\n\nCustomer flow-down analysis: AI reads customer purchase orders and flags all quality requirements needing disposition" },
+    { type: "h3", text: "Domain 3: Supply Chain" },
+    { type: "grid", items: [
+      { title: "Supplier Qualification", text: "As designed throughout Phase 3. AI processes certification packages, checks the ASL, and flags gaps. Reduces qualification review time from days to hours with a documented audit trail." },
+      { title: "RFQ Response Drafting", text: "AI generates technical capability statements from your standard process data — producing first-draft responses to customer requests for quotation faster than any manual process." },
+      { title: "Supplier Risk Scoring", text: "AI reads delivery performance, quality metrics, and financial indicators to score supplier risk monthly — flagging at-risk suppliers before they cause schedule impacts." },
+      { title: "Purchase Order Review", text: "AI reads incoming purchase orders and flags: unusual requirements, missing specifications, flow-down clauses needing disposition, and conflicts with your current capabilities." },
+    ]},
+    { type: "h3", text: "Prioritization Framework" },
+    { type: "callout", variant: "info", label: "2x2 Priority Matrix — Plot Your Use Cases", text: "Y-AXIS: Business Impact (Low to High)\n  High: saves significant time, reduces quality escapes, enables growth\n  Low: nice to have, minimal measurable effect on operations\n\nX-AXIS: Implementation Effort (Low to High)\n  Low: uses existing data, straightforward prompt engineering, 1-4 weeks\n  High: requires new data infrastructure, system integrations, compliance review\n\nSTART HERE: High Impact + Low Effort quadrant\n  Typically: NCR drafting assistance, document Q&A, standards clause lookup\n\nSECOND WAVE: High Impact + High Effort\n  Typically: Supplier qualification agent, ERP-integrated tools, computer vision" },
+  ],
+  quizzes: [
+    { question: "A quality manager wants AI to automatically approve or reject parts based on CMM inspection data without human review. What is the most appropriate response?", options: ["Excellent idea — AI dimensional analysis is highly accurate and will reduce cycle time significantly", "Use AI to flag out-of-tolerance dimensions and draft disposition recommendations, but require a qualified engineer to review and approve all final disposition decisions", "This is not technically possible with any current AI technology", "This is acceptable for minor dimensions but not for primary structural features"], correct: 1, explanation: "Disposition decisions for aerospace components have safety implications and require qualified human accountability under AS9100 and customer flow-down requirements. AI dramatically accelerates the analysis and documentation — but accountability for the final decision must remain with the qualified engineer." },
+    { question: "According to the 2x2 prioritization framework, which type of project should you start with first?", options: ["High Impact and High Effort — these deliver the most value so they deserve priority", "Low Impact and Low Effort — start very small to build confidence with leadership", "High Impact and Low Effort — maximum return for minimum investment, builds organizational momentum", "Low Impact and High Effort — tackling difficult problems demonstrates technical capability"], correct: 2, explanation: "High Impact + Low Effort projects deliver measurable ROI quickly with minimal technical risk. Early wins build organizational confidence, secure continued investment, and give you real operational experience before tackling more complex integrations that require more infrastructure and change management." },
+    { question: "Your team spends 40 hours per month creating training quizzes from updated work instructions. Which AI capability most directly addresses this?", options: ["Computer vision — to analyze diagrams and illustrations in work instructions", "RAG — to retrieve relevant procedure sections for answering each quiz question", "LLM text generation — to generate multiple-choice comprehension questions directly from the procedure text", "A multi-agent system with several specialized agents working in parallel"], correct: 2, explanation: "This is a straightforward text generation task. Feed the procedure text to an LLM and ask it to generate multiple-choice questions at specified difficulty levels with answer keys. A simple prompt engineering solution can reduce 40 hours of manual work to less than 2 hours of review and light editing." },
+  ]
+},
+{
+  phase: "Phase 4", phaseColor: "#b8860b",
+  title: "ITAR, Data Security & Compliance",
+  subtitle: "Navigate the regulatory and legal landscape for AI in aerospace manufacturing.",
+  time: "35 min", type: "Critical Knowledge",
+  video: { id: "u7snGIKfpxI", title: "ITAR Compliance Basics for Manufacturers (Export Compliance Training, 15 min)" },
+  content: [
+    { type: "callout", variant: "warning", label: "Not Legal Advice", text: "This lesson provides a practical operational framework based on common industry practices. For your specific situation — especially if you hold ITAR registrations or handle CUI — consult your legal counsel and export control officer before implementing any AI tools that touch controlled data." },
+    { type: "h3", text: "Why ITAR and AI Is a Serious Issue" },
+    { type: "p", text: "ITAR controls the export of defense articles, services, and technical data on the US Munitions List. For aerospace component manufacturers, your engineering drawings, manufacturing process specifications, material certifications, and technical parameters for defense-related parts may be ITAR-controlled." },
+    { type: "p", text: "The key AI risk: when you send data to a cloud API, that data travels across the internet to servers you do not own or control. The server location (US-based) does not resolve ITAR concerns — what matters is data access control, potential use by the service provider, and whether foreign nationals could access your data under the provider's employment or subcontracting arrangements." },
+    { type: "h3", text: "Data Classification Framework" },
+    { type: "grid", items: [
+      { title: "ITAR Controlled", text: "Defense-related technical data: drawings for ITAR-listed parts, manufacturing processes for those parts, material specs tied to controlled parts. Never send via public cloud API without legal clearance." },
+      { title: "CUI and Proprietary", text: "Controlled Unclassified Information, EAR-controlled data, proprietary processes. Evaluate carefully — may be acceptable via private enterprise cloud with proper legal agreements." },
+      { title: "Sensitive Commercial", text: "Confidential but not legally controlled: supplier pricing, internal quality metrics, operational data. Generally acceptable via enterprise cloud APIs with Data Processing Agreements." },
+      { title: "Non-Sensitive", text: "Published standards you have licensed, generic procedures, public specifications, training materials. Public cloud APIs are acceptable for this category." },
+    ]},
+    { type: "callout", variant: "success", label: "Safe Deployment Decision Tree", text: "Is the data ITAR-controlled?\n  YES  -->  Local model only (Ollama on your own hardware)\n\nIs the data CUI or EAR-controlled?\n  YES  -->  Consult export control officer\n            If cleared: Azure OpenAI with signed DPA\n\nIs it proprietary but not legally controlled?\n  YES  -->  Enterprise cloud API with Data Processing Agreement\n            (Azure OpenAI, AWS Bedrock, or Google Vertex AI)\n\nIs it non-sensitive or publicly available?\n  YES  -->  Any cloud API is acceptable\n\nWhen in doubt  -->  Local model. Always safe, never creates compliance risk." },
+    { type: "h3", text: "AS9100 Traceability Requirements for AI" },
+    { type: "p", text: "AS9100 Rev D requires traceability in your quality management system. If AI contributes to any quality decision, you must document the AI's role. Build this into every tool from day one — retrofitting traceability is significantly harder than building it in from the start." },
+    { type: "callout", variant: "info", label: "Minimum traceability record for each AI-assisted quality action:", text: "Date and time of AI analysis\nAI model used (Claude Sonnet, Llama 3.2, etc.)\nVersion of system prompt or tool version number\nDocument or data analyzed (by reference, not by content)\nAI recommendation or output summary\nName and credentials of the human reviewer\nReviewer's disposition: accepted, modified, or rejected\nFinal action taken and by whom\n\nThis can be as simple as additional columns in your existing NCR tracking spreadsheet." },
+  ],
+  quizzes: [
+    { question: "An engineer wants to paste a manufacturing process specification for an F-35 component into ChatGPT to get improvement suggestions. What is the correct course of action?", options: ["Go ahead — ChatGPT uses US-based servers so ITAR concerns do not apply", "It is fine as long as the engineer does not share the output with any outside parties", "Stop — this data is almost certainly ITAR-controlled and uploading to a public API without an export control exemption could constitute an unauthorized export requiring your export control officer's review", "Fine to proceed if the engineer has an appropriate security clearance level"], correct: 2, explanation: "ITAR concerns are about technical data export, not about classification level or clearance. F-35 component manufacturing specs are almost certainly ITAR-controlled. Server location in the US alone does not resolve ITAR concerns. This requires an export control officer decision, not an individual judgment call. The safe tool here is a local model on-premises." },
+    { question: "Your company wants to use AI to analyze supplier performance data (delivery metrics, quality rates, lead times) to generate monthly risk scores. This data is confidential but not ITAR-controlled. Which deployment is most appropriate?", options: ["Local Ollama model only — all business data should stay local regardless", "Public ChatGPT or Claude.ai — convenient and highly capable", "Enterprise cloud API (Azure OpenAI or AWS Bedrock) with a signed Data Processing Agreement", "No AI should be used for any supplier data under any circumstances"], correct: 2, explanation: "Confidential but non-controlled business data can appropriately use enterprise cloud APIs when a Data Processing Agreement is in place. This ensures your data is not used for model training and is handled within the provider's enterprise compliance framework. A free-tier public chatbot has no such guarantees and is inappropriate for confidential business data." },
+    { question: "AS9100 requires traceability for quality decisions. An AI tool drafted a disposition recommendation that an engineer then approved and implemented. What must be documented?", options: ["Only the final disposition decision and the approving engineer's signature", "The AI model used, data analyzed, AI recommendation, reviewing engineer's identity, their disposition of the recommendation, and the final action taken", "The AI output must be printed and physically attached to the part traveler", "Nothing additional beyond what is already required — the engineer's approval signature covers the entire traceability requirement"], correct: 1, explanation: "AS9100 traceability must cover the entire decision chain, including AI-assisted steps. If an auditor asks how this disposition decision was made, you need to show: what information the AI analyzed, what it recommended, who reviewed it, and what they decided. The engineer's signature alone does not document the AI's role in the process." },
+  ]
+},
+{
+  phase: "Phase 4", phaseColor: "#b8860b",
+  title: "Building the Business Case",
+  subtitle: "Turn your technical knowledge into leadership-ready proposals that get approved and funded.",
+  time: "45 min", type: "Strategic + Capstone",
+  video: { id: "sBzRwzY7G-k", title: "How to Build a Business Case for Technology Investment (HBR, 10 min)" },
+  content: [
+    { type: "p", text: "You have the technical foundation. Now comes the skill that determines whether any of it gets deployed at scale: making the case to leadership in terms they care about — ROI, risk reduction, competitive advantage, and manageable implementation risk." },
+    { type: "h3", text: "The ROI Calculation" },
+    { type: "callout", variant: "info", label: "Annual value formula and worked example:", text: "Annual Value = (Time saved per occurrence x Cost per hour x Annual volume)\n              + Error reduction value + Capacity gain value\n\nEXAMPLE: NCR Drafting Assistant\n\nCurrent process: NCR documentation takes 2.5 hours per occurrence\nAI-assisted process: 25 minutes (AI drafts, engineer reviews and approves)\nTime saved: 2.08 hours per NCR\nEngineer fully-loaded cost: $85 per hour\nSavings per NCR: $177\nAnnual NCR volume: 240\n\nAnnual time savings value:  $42,480\nError reduction value (fewer escapes, less rework): $15,000 est.\nCapacity freed for higher-value work: 500 hours per year\n\nTotal annual value: ~$57,000\nAI tool cost (API plus development): ~$8,000 per year\nNet annual benefit: ~$49,000\nPayback period: less than 2 months" },
+    { type: "h3", text: "One-Page Business Case Structure" },
+    { type: "callout", variant: "success", label: "Fill this in for your top priority use case:", text: "PROBLEM\nWhat is the current process? How long does it take? What errors occur?\nQuantify in hours per month, errors per quarter, dollars in rework costs.\n\nSOLUTION\nOne-sentence description of the AI tool you will build.\nTechnical approach: prompt engineering, RAG, or agent-based.\nData security: local model or enterprise API — and why that is appropriate.\n\nROI\nAnnual savings in dollars (show your calculation)\nImplementation cost in dollars (your time plus API costs)\nPayback period in months\n\nRISKS AND MITIGATIONS\nAccuracy: all AI outputs reviewed by qualified engineer before any action\nData security: specific approach matched to data classification\nChange management: pilot with one team, expand after validation\n\nPILOT PLAN\nScope: one specific use case, one team, 90 days\nSuccess metrics: time saved, output quality rating, user adoption rate\nGo or no-go decision: specific date and measurable criteria" },
+    { type: "h3", text: "Handling Objections from Leadership" },
+    { type: "grid", items: [
+      { title: "What if the AI makes a mistake?", text: "Every AI output is reviewed by a qualified engineer before any action is taken. The AI reduces their documentation time — not their accountability or judgment. Our liability exposure is unchanged." },
+      { title: "What about our proprietary data?", text: "We use local models for sensitive technical data — it never leaves our network. I have reviewed this approach with legal and export control. Here is the specific data flow." },
+      { title: "Will this eliminate jobs?", text: "This frees engineers from document processing so they can focus on engineering judgment — the work that commands our premium margins. We are not reducing headcount; we are upgrading what our team accomplishes." },
+      { title: "We do not have time to implement this.", text: "The 90-day pilot requires X hours of engineering time total. I have scoped it to be completely additive and non-disruptive to current operations. The first tool is ready to pilot this quarter." },
+    ]},
+    { type: "callout", variant: "success", label: "Course Capstone — Your Action Items This Week", text: "You have completed all 14 lessons. Here is what to do next:\n\n1. Pick your number one priority use case from your Lesson 12 (Aerospace Use Cases) analysis\n2. Complete the one-page business case template above for that use case\n3. Identify one internal partner who would benefit from the pilot\n4. Estimate how long it would take you to build a working prototype\n5. Schedule 30 minutes with your manager to present the opportunity\n\nThe biggest mistake is waiting until everything is perfect. A working prototype — even rough — is worth 100 polished slide decks. Start building this week." },
+  ],
+  quizzes: [
+    { question: "Leadership asks: 'What happens if the AI makes a wrong recommendation on a part disposition?' What is the strongest response?", options: ["The AI is accurate enough that significant errors are unlikely with modern models", "We will start with low-risk parts and implement error monitoring before expanding", "Every AI recommendation is reviewed and approved by a qualified engineer before any action is taken — AI reduces documentation time, not accountability. Our disposition approval process is completely unchanged.", "We will run AI and human analysis in parallel for the first 6 months before going live"], correct: 2, explanation: "This response directly addresses the concern by preserving all existing accountability structures. It positions AI as augmenting engineer judgment rather than replacing it. Human accountability, traceability, and the existing approval process are entirely unchanged — only the time to prepare the documentation is reduced." },
+    { question: "Which ROI calculation approach is most credible when presenting to leadership?", options: ["Use optimistic estimates to make the opportunity look as large as possible and revise down later if needed", "Use conservative estimates for savings and realistic estimates for costs, showing your calculation transparently so leadership can validate the assumptions", "Focus only on qualitative benefits since cost savings are difficult to estimate accurately", "Compare your expected ROI to AI implementations at other companies using published case studies"], correct: 1, explanation: "Conservative, transparent calculations build credibility. When you show your math clearly — here is how long the current process takes, here is our estimated improvement, here is why — leadership can engage with and validate your assumptions. Optimistic projections that later prove wrong destroy trust and future project funding." },
+    { question: "Why is proposing a 90-day pilot rather than a full company-wide rollout almost always the better strategy for a first AI project?", options: ["Pilots are much cheaper and require essentially no engineering or IT resources", "Pilots limit perceived risk, are easier to get approved, provide essential operational learning, and almost always succeed well enough to justify expansion", "Full rollouts require too much AS9100 documentation and process change approvals", "Pilots allow you to defer data security requirements until the full rollout phase"], correct: 1, explanation: "Leadership is more willing to approve limited-scope experiments than major operational changes. A 90-day pilot with one team and clear metrics de-risks the decision entirely. The operational learning from a real pilot also makes subsequent implementations significantly more successful — you discover the real challenges before they affect the whole organization." },
+  ]
+},
+];
+
+// ─── COMPONENTS ────────────────────────────────────────────────────────────────
+
+function Callout({ variant = "info", label, text }) {
+  const styles = {
+    info:    { bg: "#e8f4fd", border: "#1c4a7a", labelColor: "#1c4a7a" },
+    warning: { bg: "#fef3e2", border: "#c84b11", labelColor: "#c84b11" },
+    success: { bg: "#e8f5ee", border: "#1a6b3c", labelColor: "#1a6b3c" },
+  };
+  const s = styles[variant] || styles.info;
+  return (
+    <div style={{ background: s.bg, borderLeft: `4px solid ${s.border}`, borderRadius: "0 8px 8px 0", padding: "14px 18px", margin: "16px 0", fontSize: 13, lineHeight: 1.75 }}>
+      {label && <div style={{ fontFamily: "monospace", fontSize: 10, letterSpacing: "0.12em", textTransform: "uppercase", color: s.labelColor, fontWeight: 700, marginBottom: 6 }}>{label}</div>}
+      <div style={{ whiteSpace: "pre-wrap" }}>{text}</div>
+    </div>
+  );
+}
+
+function ConceptGrid({ items }) {
+  return (
+    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, margin: "16px 0" }}>
+      {items.map((item, i) => (
+        <div key={i} style={{ background: "#ede7d6", border: "1px solid #c8bfaa", borderRadius: 8, padding: 16 }}>
+          <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 6, color: "#1a1208" }}>{item.title}</div>
+          <div style={{ fontSize: 12, lineHeight: 1.65, color: "#5a4e3f" }}>{item.text}</div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function VideoEmbed({ video }) {
+  const [expanded, setExpanded] = useState(false);
+  const [useEmbed, setUseEmbed]  = useState(false);
+  const [iframeError, setIframeError] = useState(false);
+
+  // Allow Esc to exit expanded (fullscreen) video
+  useEffect(() => {
+    if (!expanded) return;
+    const onKey = (e) => { if (e.key === "Escape") setExpanded(false); };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [expanded]);
+
+  if (!video) return null;
+
+  const ytUrl    = `https://www.youtube.com/watch?v=${video.id}`;
+  const embedSrc = `https://www.youtube-nocookie.com/embed/${video.id}?autoplay=1&rel=0&modestbranding=1`;
+  const NORMAL_H = 340;
+
+  // Colors
+  const RED = "#c84b11", CREAM = "#f5f0e8", DARK = "#1a1208", GOLD = "#e8a87c";
+
+  const wrapStyle = expanded
+    ? { position:"fixed", inset:0, zIndex:99998, background:DARK,
+        display:"flex", flexDirection:"column", margin:0, borderRadius:0, border:"none" }
+    : { margin:"20px 0", border:"1px solid #c8bfaa", borderRadius:12,
+        overflow:"hidden", background:DARK };
+
+  const bodyStyle = expanded
+    ? { flex:1, position:"relative", width:"100%" }
+    : { position:"relative", width:"100%", height:NORMAL_H };
+
+  // ── what to show in the body area ──────────────────────────────────────────
+  let body = null;
+
+  if (useEmbed && !iframeError) {
+    // Attempt the real iframe — if it stays black user can fall back
+    body = (
+      <div style={bodyStyle}>
+        <iframe
+          key={video.id}
+          src={embedSrc}
+          title={video.title}
+          onError={() => setIframeError(true)}
+          allow="autoplay; accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+          allowFullScreen
+          style={{ position:"absolute", top:0, left:0, width:"100%", height:"100%",
+                   border:"none", display:"block", background:"#000" }}
+        />
+        {/* Fallback strip at bottom in case iframe is black */}
+        <div style={{ position:"absolute", bottom:0, left:0, right:0, zIndex:10,
+                      background:"rgba(0,0,0,0.75)", padding:"8px 14px",
+                      display:"flex", alignItems:"center", justifyContent:"space-between",
+                      gap:10 }}>
+          <span style={{ fontFamily:"monospace", fontSize:10, color:"rgba(255,255,255,0.5)" }}>
+            Video not loading?
+          </span>
+          <a href={ytUrl} target="_blank" rel="noreferrer"
+             aria-label="Open video in YouTube"
+             style={{ fontFamily:"monospace", fontSize:10, letterSpacing:"0.08em",
+                      textTransform:"uppercase", padding:"5px 12px",
+                      background:RED, color:CREAM, borderRadius:5,
+                      textDecoration:"none", fontWeight:700 }}>
+            Open in YouTube ↗
+          </a>
+        </div>
+      </div>
+    );
+  } else {
+    // Default: clean card with big play → opens YouTube in new tab,
+    // plus a secondary "Try embed" option
+    body = (
+      <div style={{ ...bodyStyle, background:"#111", display:"flex",
+                    flexDirection:"column", alignItems:"center",
+                    justifyContent:"center", gap:18, padding:24 }}>
+
+        {/* Big play button → opens YouTube */}
+        <a href={ytUrl} target="_blank" rel="noreferrer"
+           aria-label={`Watch "${video.title}" on YouTube`}
+           style={{ display:"flex", flexDirection:"column", alignItems:"center",
+                    gap:14, textDecoration:"none", cursor:"pointer" }}>
+          <div className="play-btn" style={{ width:90, height:90, borderRadius:"50%",
+                        background:RED, display:"flex",
+                        alignItems:"center", justifyContent:"center",
+                        boxShadow:"0 6px 32px rgba(200,75,17,0.55)",
+                        transition:"transform 0.15s, box-shadow 0.15s" }}>
+            <span style={{ fontSize:36, color:CREAM, marginLeft:6, lineHeight:1 }}>▶</span>
+          </div>
+          <div style={{ textAlign:"center" }}>
+            <div style={{ fontFamily:"monospace", fontSize:11, letterSpacing:"0.1em",
+                          textTransform:"uppercase", color:GOLD, marginBottom:4 }}>
+              Watch on YouTube
+            </div>
+            <div style={{ fontSize:13, color:"rgba(255,255,255,0.55)", maxWidth:340,
+                          lineHeight:1.45 }}>
+              {video.title}
+            </div>
+          </div>
+        </a>
+
+        {/* Divider */}
+        <div style={{ width:"60%", height:1, background:"rgba(255,255,255,0.08)" }} />
+
+        {/* Try-embed fallback with context */}
+        <div style={{ textAlign:"center" }}>
+          <button
+            onClick={() => { setIframeError(false); setUseEmbed(true); }}
+            aria-label="Try loading the embedded video player instead"
+            style={{ fontFamily:"monospace", fontSize:9, letterSpacing:"0.1em",
+                     textTransform:"uppercase", padding:"6px 14px",
+                     background:"transparent", border:"1px solid rgba(255,255,255,0.15)",
+                     borderRadius:5, cursor:"pointer", color:"rgba(255,255,255,0.3)" }}>
+            Try embedded player instead
+          </button>
+          <div style={{ fontFamily:"monospace", fontSize:9, color:"rgba(255,255,255,0.25)",
+                        marginTop:8, lineHeight:1.4, maxWidth:320 }}>
+            Works best in the deployed app. In the artifact preview the embed may appear black — use "Watch on YouTube" above.
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ── render ─────────────────────────────────────────────────────────────────
+  return (
+    <div style={wrapStyle}>
+
+      {/* Header */}
+      <div style={{ background:DARK, padding:"10px 14px", display:"flex",
+                    alignItems:"center", gap:10, flexShrink:0,
+                    borderBottom:"1px solid rgba(255,255,255,0.08)" }}>
+        <div style={{ flex:1, minWidth:0 }}>
+          <div style={{ fontFamily:"monospace", fontSize:9, letterSpacing:"0.15em",
+                        textTransform:"uppercase", color:GOLD, marginBottom:2 }}>
+            Recommended Video
+          </div>
+          <div style={{ fontSize:13, color:CREAM, fontWeight:600, lineHeight:1.3,
+                        overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>
+            {video.title}
+          </div>
+        </div>
+        <div style={{ display:"flex", gap:6, flexShrink:0, alignItems:"center" }}>
+          {useEmbed && !iframeError && (
+            <button
+              onClick={() => setExpanded(e => !e)}
+              aria-label={expanded ? "Exit fullscreen video" : "Enter fullscreen video"}
+              title={expanded ? "Exit fullscreen (Esc)" : "Fullscreen"}
+              style={{ fontSize:16, padding:"4px 9px", lineHeight:1,
+                       background:"rgba(255,255,255,0.08)",
+                       border:"1px solid rgba(255,255,255,0.22)",
+                       borderRadius:6, cursor:"pointer",
+                       color:"rgba(255,255,255,0.9)" }}>
+              {expanded ? "⊡" : "⊞"}
+            </button>
+          )}
+          {useEmbed && (
+            <button
+              onClick={() => { setUseEmbed(false); setExpanded(false); setIframeError(false); }}
+              aria-label="Return to video thumbnail"
+              style={{ fontFamily:"monospace", fontSize:9, letterSpacing:"0.08em",
+                       textTransform:"uppercase", padding:"6px 12px",
+                       background:"rgba(255,255,255,0.07)",
+                       border:"1px solid rgba(255,255,255,0.15)",
+                       borderRadius:6, cursor:"pointer", color:"rgba(255,255,255,0.5)" }}>
+              ← Back
+            </button>
+          )}
+        </div>
+      </div>
+
+      {body}
+    </div>
+  );
+}
+
+function QuizSet({ quizzes }) {
+  const [answers, setAnswers] = useState({});
+  const answered = (qi) => answers[qi] !== undefined;
+  const allAnswered = quizzes.every((_, i) => answered(i));
+  const score = quizzes.filter((q, i) => answers[i] === q.correct).length;
+
+  return (
+    <div style={{ margin: "32px 0" }}>
+      <div style={{ fontFamily: "monospace", fontSize: 10, letterSpacing: "0.18em", textTransform: "uppercase", color: "#c84b11", marginBottom: 16, display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+        <span>Knowledge Check</span>
+        <span style={{ color: "#c8bfaa" }}>—</span>
+        <span style={{ color: "#7a6e5f" }}>{quizzes.length} questions</span>
+        {allAnswered && (
+          <span style={{ marginLeft: "auto", fontWeight: 700, color: score === quizzes.length ? "#1a6b3c" : score >= Math.ceil(quizzes.length * 0.7) ? "#7a6000" : "#8b2020" }}>
+            Score: {score}/{quizzes.length}
+          </span>
+        )}
+      </div>
+
+      {quizzes.map((quiz, qi) => {
+        const chosen = answers[qi];
+        const isAnswered = answered(qi);
+        return (
+          <div key={qi} style={{ background: "#ede7d6", border: "1px solid #c8bfaa", borderRadius: 12, padding: 20, marginBottom: 16 }}>
+            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 14, lineHeight: 1.5, color: "#1a1208" }}>
+              <span style={{ fontFamily: "monospace", fontSize: 11, color: "#7a6e5f", marginRight: 8 }}>Q{qi + 1}.</span>
+              {quiz.question}
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              {quiz.options.map((opt, oi) => {
+                let bg = "#f5f0e8", border = "#c8bfaa", color = "#1a1208";
+                if (isAnswered) {
+                  if (oi === quiz.correct) { bg = "rgba(26,107,60,0.1)"; border = "#1a6b3c"; color = "#14522e"; }
+                  else if (oi === chosen) { bg = "rgba(192,57,43,0.08)"; border = "#c0392b"; color = "#7a1f10"; }
+                }
+                const letter = String.fromCharCode(65 + oi);
+                const icon = isAnswered ? (oi === quiz.correct ? "✓" : oi === chosen ? "✗" : letter) : letter;
+                return (
+                  <button key={oi} disabled={isAnswered} onClick={() => setAnswers(a => ({ ...a, [qi]: oi }))}
+                    style={{ padding: "11px 15px", border: `1px solid ${border}`, borderRadius: 8, cursor: isAnswered ? "default" : "pointer", fontSize: 13, lineHeight: 1.45, textAlign: "left", background: bg, color, fontFamily: "inherit", display: "flex", alignItems: "flex-start", gap: 10, transition: "background 0.15s, border-color 0.15s" }}>
+                    <span style={{ fontFamily: "monospace", fontSize: 11, flexShrink: 0, marginTop: 1, fontWeight: 700, opacity: 0.7 }}>{icon}</span>
+                    <span>{opt}</span>
+                  </button>
+                );
+              })}
+            </div>
+            {isAnswered && (
+              <div style={{ marginTop: 12, padding: "12px 15px", borderRadius: 8, fontSize: 13, lineHeight: 1.65,
+                background: chosen === quiz.correct ? "rgba(26,107,60,0.1)" : "rgba(192,57,43,0.06)",
+                color: chosen === quiz.correct ? "#14522e" : "#6b1f12",
+                border: `1px solid ${chosen === quiz.correct ? "rgba(26,107,60,0.3)" : "rgba(192,57,43,0.2)"}` }}>
+                <span style={{ fontWeight: 700 }}>{chosen === quiz.correct ? "Correct — " : "Not quite — "}</span>
+                {quiz.explanation}
+              </div>
+            )}
+          </div>
+        );
+      })}
+
+      {allAnswered && (
+        <div style={{ textAlign: "center", padding: 16, borderRadius: 10, fontFamily: "monospace", fontSize: 12,
+          background: score === quizzes.length ? "rgba(26,107,60,0.08)" : "rgba(184,134,11,0.08)",
+          border: `1px solid ${score === quizzes.length ? "rgba(26,107,60,0.25)" : "rgba(184,134,11,0.3)"}`,
+          color: score === quizzes.length ? "#14522e" : "#5a4800" }}>
+          {score === quizzes.length
+            ? `Perfect score — all ${quizzes.length} correct. Ready to continue.`
+            : `${score} of ${quizzes.length} correct. Review the explanations above before moving on.`}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function LessonView({ lesson, lessonIdx, totalLessons, onPrev, onNext, isCompleted }) {
+  const renderBlock = (block, i) => {
+    switch (block.type) {
+      case "p": return <p key={i} style={{ fontSize: 15, lineHeight: 1.7, marginBottom: 16, color: "#2a2018" }}>{block.text}</p>;
+      case "h3": return (
+        <h3 key={i} style={{ fontSize: 19, fontWeight: 600, margin: "28px 0 10px", display: "flex", alignItems: "center", gap: 10, color: "#1a1208" }}>
+          <span style={{ width: 3, height: 20, background: "#c84b11", borderRadius: 2, flexShrink: 0, display: "inline-block" }} />
+          {block.text}
+        </h3>
+      );
+      case "callout": return <Callout key={i} variant={block.variant} label={block.label} text={block.text} />;
+      case "grid": return <ConceptGrid key={i} items={block.items} />;
+      default: return null;
+    }
+  };
+
+  return (
+    <div style={{ maxWidth: 780, margin: "0 auto", padding: "40px 36px 80px", width: "100%" }}>
+      <div style={{ fontFamily: "monospace", fontSize: 10, letterSpacing: "0.18em", color: "#7a6e5f", textTransform: "uppercase", marginBottom: 10, display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+        <span style={{ background: lesson.phaseColor, color: "#fff", padding: "2px 8px", borderRadius: 3, fontSize: 9 }}>{lesson.phase}</span>
+        <span>Lesson {lessonIdx + 1} of {totalLessons}</span>
+        <span style={{ color: "#c8bfaa" }}>·</span>
+        <span>{lesson.type}</span>
+        {isCompleted && <span style={{ color: "#1a6b3c", marginLeft: "auto" }}>✓ Completed</span>}
+      </div>
+
+      <h1 style={{ fontSize: "clamp(26px,3.5vw,40px)", fontWeight: 700, lineHeight: 1.1, letterSpacing: "-0.02em", marginBottom: 8, color: "#1a1208" }}>{lesson.title}</h1>
+      <p style={{ fontSize: 16, fontWeight: 300, fontStyle: "italic", color: "#7a6e5f", marginBottom: 20, lineHeight: 1.55 }}>{lesson.subtitle}</p>
+
+      <div style={{ display: "flex", gap: 16, marginBottom: 20, paddingBottom: 20, borderBottom: "1px solid #c8bfaa" }}>
+        <span style={{ fontFamily: "monospace", fontSize: 11, color: "#7a6e5f" }}>⏱ {lesson.time}</span>
+      </div>
+
+      <VideoEmbed video={lesson.video} />
+
+      {lesson.content.map((block, i) => renderBlock(block, i))}
+
+      <QuizSet key={lessonIdx} quizzes={lesson.quizzes} />
+
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 32, paddingTop: 24, borderTop: "1px solid #c8bfaa" }}>
+        <button onClick={onPrev} style={{ fontFamily: "monospace", fontSize: 11, letterSpacing: "0.08em", textTransform: "uppercase", padding: "11px 22px", borderRadius: 6, border: "1px solid #c8bfaa", background: "transparent", cursor: "pointer", color: "#7a6e5f" }}>
+          {lessonIdx > 0 ? "← Prev Lesson" : "← Home"}
+        </button>
+        {isCompleted && <span style={{ fontFamily: "monospace", fontSize: 10, color: "#1a6b3c" }}>✓ Completed</span>}
+        <button onClick={onNext} style={{ fontFamily: "monospace", fontSize: 11, letterSpacing: "0.08em", textTransform: "uppercase", padding: "11px 22px", borderRadius: 6, border: "none", background: "#1a1208", color: "#f5f0e8", cursor: "pointer" }}>
+          {lessonIdx < totalLessons - 1 ? "Mark Complete & Continue →" : "Finish Course!"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ─── APP ───────────────────────────────────────────────────────────────────────
+function CourseApp() {
+  const [currentLesson, setCurrentLesson] = useState(-1);
+  const [completed, setCompleted] = useState(new Set());
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [storageReady, setStorageReady] = useState(false);
+  const [storageError, setStorageError] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+
+  // Inject global styles once for active/focus states (touch-friendly) and
+  // accessibility-focused keyboard outlines
+  useEffect(() => {
+    const id = "ai-course-globals";
+    if (document.getElementById(id)) return;
+    const el = document.createElement("style");
+    el.id = id;
+    el.textContent = `
+      .play-btn:active { transform: scale(0.96); box-shadow: 0 4px 18px rgba(200,75,17,0.45); }
+      @media (hover: hover) {
+        .play-btn:hover { transform: scale(1.06); box-shadow: 0 8px 40px rgba(200,75,17,0.75); }
+      }
+      *:focus-visible { outline: 2px solid #e8a87c; outline-offset: 2px; border-radius: 4px; }
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+      }
+    `;
+    document.head.appendChild(el);
+    return () => { const s = document.getElementById(id); if (s) s.remove(); };
+  }, []);
+
+  // Load saved progress on mount
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem("ai-course-progress");
+      if (raw) {
+        const saved = JSON.parse(raw);
+        if (saved.completed && Array.isArray(saved.completed)) {
+          setCompleted(new Set(saved.completed));
+        }
+        if (typeof saved.currentLesson === "number") {
+          setCurrentLesson(saved.currentLesson);
+        }
+        if (typeof saved.sidebarCollapsed === "boolean") {
+          setSidebarCollapsed(saved.sidebarCollapsed);
+        }
+      }
+    } catch (e) { setStorageError(true); }
+    setStorageReady(true);
+  }, []);
+
+  // Save progress whenever completed lessons, current lesson, or sidebar state changes
+  useEffect(() => {
+    if (!storageReady) return;
+    try {
+      localStorage.setItem("ai-course-progress", JSON.stringify({
+        completed: [...completed],
+        currentLesson,
+        sidebarCollapsed,
+      }));
+      if (storageError) setStorageError(false);
+    } catch (e) {
+      setStorageError(true);
+    }
+  }, [completed, currentLesson, sidebarCollapsed, storageReady, storageError]);
+
+  // Inject/remove a style tag that forces the app to fill the iframe viewport
+  useEffect(() => {
+    const id = "fs-override";
+    let el = document.getElementById(id);
+    if (isFullscreen) {
+      if (!el) {
+        el = document.createElement("style");
+        el.id = id;
+        document.head.appendChild(el);
+      }
+      el.textContent = `
+        html, body { margin: 0; padding: 0; width: 100% !important; height: 100% !important; overflow: hidden !important; }
+        #fs-root { position: fixed !important; inset: 0 !important; width: 100vw !important; height: 100vh !important; z-index: 99999 !important; overflow: hidden !important; }
+        #fs-root > nav { height: 100vh !important; }
+        #fs-root > main { height: 100vh !important; overflow-y: auto !important; }
+      `;
+    } else {
+      if (el) el.remove();
+    }
+    return () => { const s = document.getElementById(id); if (s) s.remove(); };
+  }, [isFullscreen]);
+
+  const toggleFullscreen = () => setIsFullscreen(f => !f);
+
+  const progressPct = Math.round((completed.size / LESSONS.length) * 100);
+  const goTo = (idx) => { setCurrentLesson(idx); window.scrollTo(0, 0); };
+  const goHome = () => setCurrentLesson(-1);
+  const handleNext = (idx) => {
+    setCompleted(prev => new Set([...prev, idx]));
+    if (idx < LESSONS.length - 1) goTo(idx + 1);
+    else goTo(-2);
+  };
+
+  // Keyboard shortcuts: arrow keys to navigate lessons, Esc to go home
+  useEffect(() => {
+    const onKey = (e) => {
+      // Don't intercept when typing in inputs or when modifier keys held
+      if (e.target.matches && e.target.matches("input, textarea, button, a")) {
+        // Still allow Escape from buttons/links
+        if (e.key !== "Escape") return;
+      }
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+
+      if (currentLesson >= 0 && currentLesson < LESSONS.length) {
+        if (e.key === "ArrowLeft") {
+          if (currentLesson > 0) goTo(currentLesson - 1); else goHome();
+          e.preventDefault();
+        } else if (e.key === "ArrowRight") {
+          handleNext(currentLesson);
+          e.preventDefault();
+        } else if (e.key === "Escape") {
+          goHome();
+          e.preventDefault();
+        }
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [currentLesson]);
+
+  // Derive phase groups from lesson data itself (not hardcoded indices)
+  // so adding/removing lessons doesn't break the sidebar
+  const phaseGroups = (() => {
+    const groups = [];
+    const labelFor = { "Phase 1": "Phase 1 · Foundation", "Phase 2": "Phase 2 · Build", "Phase 3": "Phase 3 · Agentic", "Phase 4": "Phase 4 · Industry" };
+    LESSONS.forEach((l, i) => {
+      const last = groups[groups.length - 1];
+      if (last && last.phase === l.phase) { last.indices.push(i); }
+      else { groups.push({ phase: l.phase, label: labelFor[l.phase] || l.phase, indices: [i] }); }
+    });
+    return groups;
+  })();
+
+  return (
+    <div id="fs-root" style={{ display: "flex", fontFamily: "Georgia, serif", background: "#f5f0e8", color: "#1a1208", minHeight: "100dvh" }}>
+
+      {/* SIDEBAR */}
+      <nav aria-label="Course navigation"
+        style={{
+          width: sidebarCollapsed ? 44 : 260,
+          minWidth: sidebarCollapsed ? 44 : 260,
+          background: "#1a1208", color: "#f5f0e8",
+          display: "flex", flexDirection: "column",
+          height: "100dvh", overflowY: "auto", flexShrink: 0,
+          position: "sticky", top: 0,
+          transition: "width 0.2s ease, min-width 0.2s ease",
+          borderRight: "1px solid rgba(255,255,255,0.08)",
+        }}>
+
+        {sidebarCollapsed ? (
+          /* ── COLLAPSED RAIL ─────────────────────────────────────────── */
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "14px 0", gap: 14 }}>
+            {/* Expand button */}
+            <button
+              onClick={() => setSidebarCollapsed(false)}
+              aria-label="Expand sidebar"
+              aria-expanded="false"
+              title="Expand lesson list"
+              style={{ background: "rgba(232,168,124,0.1)", border: "1px solid rgba(232,168,124,0.25)", borderRadius: 6, color: "#e8a87c", cursor: "pointer", padding: "6px 8px", fontFamily: "monospace", fontSize: 14, lineHeight: 1 }}>
+              ›
+            </button>
+
+            {/* Home button */}
+            <button
+              onClick={goHome}
+              aria-label="Course home"
+              title="Course home"
+              style={{ background: "transparent", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 6, color: "rgba(255,255,255,0.6)", cursor: "pointer", padding: "6px 8px", fontSize: 13, lineHeight: 1 }}>
+              ⌂
+            </button>
+
+            {/* Vertical progress indicator */}
+            <div
+              role="progressbar"
+              aria-label="Course completion progress"
+              aria-valuenow={progressPct} aria-valuemin={0} aria-valuemax={100}
+              title={`${progressPct}% complete`}
+              style={{ width: 4, height: 80, background: "rgba(255,255,255,0.1)", borderRadius: 2, overflow: "hidden", position: "relative" }}>
+              <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: `${progressPct}%`, background: "#e8a87c", transition: "height 0.5s ease" }} />
+            </div>
+            <div style={{ fontFamily: "monospace", fontSize: 9, color: "rgba(255,255,255,0.4)", writingMode: "vertical-rl", transform: "rotate(180deg)", letterSpacing: "0.12em" }}>
+              {completed.size}/{LESSONS.length}
+            </div>
+
+            {/* Lesson dots — compact vertical list */}
+            <div style={{ display: "flex", flexDirection: "column", gap: 4, marginTop: 8 }}>
+              {LESSONS.map((l, idx) => {
+                const isActive = currentLesson === idx;
+                const isDone = completed.has(idx);
+                return (
+                  <button
+                    key={idx}
+                    onClick={() => goTo(idx)}
+                    aria-label={`Lesson ${idx + 1}: ${l.title}${isDone ? " (completed)" : ""}${isActive ? " (current)" : ""}`}
+                    aria-current={isActive ? "page" : undefined}
+                    title={`Lesson ${idx + 1}: ${l.title}`}
+                    style={{
+                      width: 26, height: 22,
+                      display: "flex", alignItems: "center", justifyContent: "center",
+                      background: isActive ? "rgba(232,168,124,0.18)" : "transparent",
+                      border: `1px solid ${isActive ? "#e8a87c" : isDone ? "rgba(95,188,128,0.4)" : "rgba(255,255,255,0.1)"}`,
+                      borderRadius: 4,
+                      fontFamily: "monospace", fontSize: 9,
+                      color: isActive ? "#e8a87c" : isDone ? "#5fbc80" : "rgba(255,255,255,0.4)",
+                      cursor: "pointer", padding: 0, fontWeight: isActive ? 700 : 400,
+                    }}>
+                    {isDone && !isActive ? "✓" : (idx + 1)}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Fullscreen button at bottom */}
+            <button
+              onClick={toggleFullscreen}
+              aria-label={isFullscreen ? "Exit fullscreen mode" : "Enter fullscreen mode"}
+              title={isFullscreen ? "Exit fullscreen" : "Fullscreen"}
+              style={{ marginTop: "auto", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 6, color: "rgba(255,255,255,0.55)", cursor: "pointer", padding: "6px 8px", fontFamily: "monospace", fontSize: 13, lineHeight: 1 }}>
+              {isFullscreen ? "✕" : "⤢"}
+            </button>
+          </div>
+        ) : (
+          /* ── EXPANDED SIDEBAR ────────────────────────────────────────── */
+          <>
+            <div style={{ padding: "20px 18px 14px", borderBottom: "1px solid rgba(255,255,255,0.1)" }}>
+              <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 6 }}>
+                <div style={{ cursor: "pointer", flex: 1, minWidth: 0 }} onClick={goHome}>
+                  <div style={{ fontFamily: "monospace", fontSize: 9, letterSpacing: "0.18em", color: "rgba(255,255,255,0.32)", textTransform: "uppercase", marginBottom: 5 }}>Active Learning Course</div>
+                  <div style={{ fontSize: 16, fontWeight: 700, lineHeight: 1.25 }}>AI Mastery for <span style={{ fontStyle: "italic", color: "#e8a87c" }}>Aerospace</span></div>
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", gap: 5, flexShrink: 0 }}>
+                  {/* Collapse button */}
+                  <button
+                    onClick={() => setSidebarCollapsed(true)}
+                    aria-label="Collapse sidebar to focus on lesson content"
+                    aria-expanded="true"
+                    title="Collapse sidebar"
+                    style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.18)", borderRadius: 6, color: "rgba(255,255,255,0.65)", cursor: "pointer", padding: "4px 8px", lineHeight: 1, fontFamily: "monospace", fontSize: 13 }}>
+                    ‹
+                  </button>
+                  <button onClick={toggleFullscreen}
+                    aria-label={isFullscreen ? "Exit fullscreen mode" : "Enter fullscreen mode"}
+                    title={isFullscreen ? "Exit fullscreen" : "Fullscreen"}
+                    style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.18)", borderRadius: 6, color: "rgba(255,255,255,0.65)", cursor: "pointer", padding: "4px 8px", lineHeight: 1, fontFamily: "monospace", fontSize: 13 }}>
+                    {isFullscreen ? "✕" : "⤢"}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div style={{ padding: "12px 18px", borderBottom: "1px solid rgba(255,255,255,0.1)" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", fontFamily: "monospace", fontSize: 9, color: "rgba(255,255,255,0.32)", textTransform: "uppercase", letterSpacing: "0.12em", marginBottom: 7 }}>
+                <span>Progress</span><span>{progressPct}%</span>
+              </div>
+              <div role="progressbar" aria-label="Course completion progress"
+                   aria-valuenow={progressPct} aria-valuemin={0} aria-valuemax={100}
+                   style={{ height: 4, background: "rgba(255,255,255,0.1)", borderRadius: 2, overflow: "hidden" }}>
+                <div style={{ height: "100%", background: "#e8a87c", width: `${progressPct}%`, borderRadius: 2, transition: "width 0.5s ease" }} />
+              </div>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 5 }}>
+                <div style={{ fontFamily: "monospace", fontSize: 9, color: "rgba(255,255,255,0.22)" }}>{completed.size} of {LESSONS.length} complete</div>
+                {completed.size > 0 && (
+                  <button onClick={() => {
+                    if (!window.confirm("Reset all progress?")) return;
+                    setCompleted(new Set());
+                    setCurrentLesson(-1);
+                    try { localStorage.removeItem("ai-course-progress"); } catch(e) {}
+                  }}
+                  aria-label="Reset all course progress"
+                  style={{ fontFamily: "monospace", fontSize: 8, letterSpacing: "0.08em", textTransform: "uppercase", padding: "2px 6px", background: "transparent", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 3, color: "rgba(255,255,255,0.3)", cursor: "pointer" }}>
+                    Reset
+                  </button>
+                )}
+              </div>
+              {storageError && (
+                <div role="alert" style={{ marginTop: 10, padding: "6px 8px", background: "rgba(200,75,17,0.15)", border: "1px solid rgba(200,75,17,0.4)", borderRadius: 4, fontFamily: "monospace", fontSize: 9, color: "#e8a87c", lineHeight: 1.4 }}>
+                  ⚠ Progress not saving. Browser storage may be blocked.
+                </div>
+              )}
+            </div>
+
+            {phaseGroups.map((group, gi) => (
+              <div key={gi} style={{ padding: "8px 0", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+                <div style={{ fontFamily: "monospace", fontSize: 9, letterSpacing: "0.14em", color: "rgba(255,255,255,0.26)", textTransform: "uppercase", padding: "2px 18px 6px" }}>{group.label}</div>
+                {group.indices.map(idx => {
+                  const l = LESSONS[idx];
+                  const isActive = currentLesson === idx;
+                  const isDone = completed.has(idx);
+                  return (
+                    <div key={idx} onClick={() => goTo(idx)}
+                      role="button" tabIndex={0}
+                      aria-label={`Lesson ${idx + 1}: ${l.title}${isDone ? " (completed)" : ""}${isActive ? " (current)" : ""}`}
+                      aria-current={isActive ? "page" : undefined}
+                      onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); goTo(idx); } }}
+                      style={{ padding: "7px 18px", display: "flex", alignItems: "center", gap: 8, cursor: "pointer", borderLeft: `3px solid ${isActive ? "#e8a87c" : "transparent"}`, background: isActive ? "rgba(232,168,124,0.1)" : "transparent", color: isActive ? "#e8a87c" : isDone ? "rgba(255,255,255,0.4)" : "rgba(255,255,255,0.58)", fontSize: 12, fontWeight: isActive ? 600 : 300, transition: "all 0.15s" }}>
+                      <span style={{ fontFamily: "monospace", fontSize: 9, color: isActive ? "#e8a87c" : "rgba(255,255,255,0.2)", minWidth: 20, flexShrink: 0 }}>{(idx + 1).toString().padStart(2, "0")}</span>
+                      <span style={{ flex: 1, lineHeight: 1.3 }}>{l.title}</span>
+                      {isDone && <span aria-hidden="true" style={{ color: "#5fbc80", fontSize: 10, flexShrink: 0 }}>✓</span>}
+                    </div>
+                  );
+                })}
+              </div>
+            ))}
+          </>
+        )}
+      </nav>
+
+      {/* MAIN */}
+      <main aria-label="Lesson content" style={{ flex: 1, overflowY: "auto", height: "100dvh" }}>
+        {currentLesson === -1 && (
+          <div style={{ maxWidth: 620, margin: "0 auto", padding: "60px 32px", textAlign: "center" }}>
+            <div style={{ fontSize: 58, marginBottom: 18 }}>✈️</div>
+            <h1 style={{ fontSize: "clamp(28px,5vw,44px)", fontWeight: 700, letterSpacing: "-0.03em", marginBottom: 10 }}>
+              Welcome to Your <span style={{ fontStyle: "italic", color: "#c84b11" }}>AI Mastery</span> Course
+            </h1>
+            <p style={{ fontSize: 15, fontWeight: 300, color: "#7a6e5f", lineHeight: 1.78, marginBottom: 28 }}>
+              An interactive learning experience built for aerospace manufacturing professionals. Each lesson combines curated videos, written content with aerospace manufacturing examples, and knowledge-check quizzes with immediate feedback.
+            </p>
+            <div style={{ display: "flex", justifyContent: "center", gap: 24, marginBottom: 28, padding: 20, background: "#ede7d6", borderRadius: 12, border: "1px solid #c8bfaa", flexWrap: "wrap" }}>
+              {[["14", "Lessons"], ["4", "Phases"], ["~6", "Months"], ["3+", "Quizzes/Lesson"]].map(([val, label]) => (
+                <div key={label} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3, minWidth: 70 }}>
+                  <span style={{ fontSize: 24, fontWeight: 700 }}>{val}</span>
+                  <span style={{ fontFamily: "monospace", fontSize: 9, color: "#7a6e5f", letterSpacing: "0.12em", textTransform: "uppercase" }}>{label}</span>
+                </div>
+              ))}
+            </div>
+            <div style={{ background: "#ede7d6", border: "1px solid #c8bfaa", borderRadius: 10, padding: "14px 20px", marginBottom: 28, textAlign: "left", fontSize: 13, lineHeight: 1.8, color: "#2a2018" }}>
+              <div style={{ fontFamily: "monospace", fontSize: 9, letterSpacing: "0.14em", textTransform: "uppercase", color: "#7a6e5f", marginBottom: 8 }}>Each lesson includes</div>
+              📹 Curated video from a top AI educator · 📖 Written content with aerospace examples · 🧩 Multiple-choice quizzes with full explanations · 💡 Practical callouts for manufacturing applications
+            </div>
+            {completed.size > 0 && (
+              <div style={{ fontFamily: "monospace", fontSize: 11, color: "#7a6e5f", marginBottom: 14 }}>
+                You have completed {completed.size} of {LESSONS.length} lessons — pick up where you left off.
+              </div>
+            )}
+            <button onClick={() => {
+                if (completed.size === 0) { goTo(0); return; }
+                if (completed.size >= LESSONS.length) { goTo(-2); return; }
+                // Find the first incomplete lesson
+                const firstIncomplete = LESSONS.findIndex((_, i) => !completed.has(i));
+                goTo(firstIncomplete >= 0 ? firstIncomplete : 0);
+              }}
+              aria-label={completed.size > 0 ? "Continue course from where you left off" : "Begin the course"}
+              style={{ fontFamily: "monospace", fontSize: 12, letterSpacing: "0.1em", textTransform: "uppercase", padding: "14px 40px", background: "#1a1208", color: "#f5f0e8", border: "none", borderRadius: 8, cursor: "pointer" }}>
+              {completed.size >= LESSONS.length ? "See Course Summary →" : completed.size > 0 ? "Continue Course →" : "Begin Course →"}
+            </button>
+          </div>
+        )}
+
+        {currentLesson === -2 && (
+          <div style={{ maxWidth: 600, margin: "0 auto", padding: "64px 32px", textAlign: "center" }}>
+            <div style={{ fontSize: 70, marginBottom: 18 }}>🎓</div>
+            <h1 style={{ fontSize: 40, fontWeight: 700, letterSpacing: "-0.03em", marginBottom: 10 }}>Course Complete!</h1>
+            <p style={{ fontSize: 15, fontWeight: 300, color: "#7a6e5f", lineHeight: 1.78, marginBottom: 28 }}>
+              You have completed all 14 lessons across 4 phases. You now have the knowledge to build real AI applications for aerospace manufacturing and the business acumen to deploy them responsibly.
+            </p>
+            <div style={{ background: "#ede7d6", border: "1px solid #c8bfaa", borderRadius: 12, padding: 24, textAlign: "left", marginBottom: 24 }}>
+              <div style={{ fontFamily: "monospace", fontSize: 10, letterSpacing: "0.14em", color: "#7a6e5f", textTransform: "uppercase", marginBottom: 12 }}>Your next steps</div>
+              <div style={{ fontSize: 14, lineHeight: 2.0, color: "#2a2018" }}>
+                → Pick your top AI use case from your Lesson 12 (Aerospace Use Cases) analysis<br/>
+                → Complete the one-page business case template from Lesson 14 (Business Case)<br/>
+                → Set up your Windows dev environment if you have not yet<br/>
+                → Build a working prototype of your top priority use case<br/>
+                → Schedule 30 minutes with your manager to present the opportunity
+              </div>
+            </div>
+            <button onClick={goHome} style={{ fontFamily: "monospace", fontSize: 11, letterSpacing: "0.08em", textTransform: "uppercase", padding: "12px 28px", background: "transparent", color: "#7a6e5f", border: "1px solid #c8bfaa", borderRadius: 6, cursor: "pointer" }}>← Back to Course Home</button>
+          </div>
+        )}
+
+        {currentLesson >= 0 && currentLesson < LESSONS.length && (
+          <LessonView
+            key={currentLesson}
+            lesson={LESSONS[currentLesson]}
+            lessonIdx={currentLesson}
+            totalLessons={LESSONS.length}
+            isCompleted={completed.has(currentLesson)}
+            onPrev={() => currentLesson > 0 ? goTo(currentLesson - 1) : goHome()}
+            onNext={() => handleNext(currentLesson)}
+          />
+        )}
+      </main>
+    </div>
+  );
+}
+
+// ─── ERROR BOUNDARY ────────────────────────────────────────────────────────────
+// Catches any render error inside the course app and shows a recovery screen
+// instead of a blank white page. Users can reset progress and reload if the
+// error was caused by corrupted saved state.
+class ErrorBoundary extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, errorMsg: "" };
+  }
+  static getDerivedStateFromError(error) {
+    return { hasError: true, errorMsg: error?.message || "Unknown error" };
+  }
+  componentDidCatch(error, info) {
+    // Log to console for debugging — silent in production would be fine too
+    console.error("Course app crashed:", error, info);
+  }
+  handleReset = () => {
+    try { localStorage.removeItem("ai-course-progress"); } catch (e) {}
+    window.location.reload();
+  };
+  handleReload = () => {
+    window.location.reload();
+  };
+  render() {
+    if (!this.state.hasError) return this.props.children;
+    return (
+      <div role="alert" style={{
+        minHeight: "100dvh", display: "flex", alignItems: "center", justifyContent: "center",
+        padding: 24, fontFamily: "Georgia, serif", background: "#f5f0e8", color: "#1a1208",
+      }}>
+        <div style={{ maxWidth: 500, textAlign: "center" }}>
+          <div style={{ fontSize: 52, marginBottom: 16 }}>⚠️</div>
+          <h1 style={{ fontSize: 28, fontWeight: 700, marginBottom: 10, color: "#1a1208" }}>
+            Something went wrong
+          </h1>
+          <p style={{ fontSize: 14, color: "#7a6e5f", lineHeight: 1.6, marginBottom: 20 }}>
+            The course hit an unexpected error. Your saved progress is probably fine — try reloading first. If that doesn't help, resetting will clear saved data and start you fresh.
+          </p>
+          <div style={{ fontFamily: "monospace", fontSize: 11, color: "#8b2020", background: "#fef3e2", border: "1px solid #c84b11", borderRadius: 6, padding: "10px 14px", marginBottom: 20, textAlign: "left", wordBreak: "break-word" }}>
+            {this.state.errorMsg}
+          </div>
+          <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
+            <button onClick={this.handleReload}
+              style={{ fontFamily: "monospace", fontSize: 11, letterSpacing: "0.08em", textTransform: "uppercase", padding: "11px 22px", background: "#1a1208", color: "#f5f0e8", border: "none", borderRadius: 6, cursor: "pointer" }}>
+              Reload Page
+            </button>
+            <button onClick={this.handleReset}
+              style={{ fontFamily: "monospace", fontSize: 11, letterSpacing: "0.08em", textTransform: "uppercase", padding: "11px 22px", background: "transparent", color: "#7a6e5f", border: "1px solid #c8bfaa", borderRadius: 6, cursor: "pointer" }}>
+              Reset Progress & Reload
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+}
+
+// NOTE on the fullscreen button: the "⤢ FULL" button uses CSS injection
+// (`position: fixed; inset: 0`) rather than the browser Fullscreen API, because
+// artifact iframes and many PWA contexts block the real Fullscreen API. This
+// means fullscreen fills the host container (iframe or viewport) — it works
+// reliably in the deployed PWA but only fills the artifact iframe in the
+// preview. Escape key exits via the keyboard handler in CourseApp.
+function App() {
+  return (
+    <ErrorBoundary>
+      <CourseApp />
+    </ErrorBoundary>
+  );
+}
+
+
+// ─── MOUNT ─────────────────────────────────────────────────────────────────────
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<App />);
+
+  </script>
+</body>
+</html>
