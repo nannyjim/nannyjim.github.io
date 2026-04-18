@@ -7,7 +7,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="AI Aerospace" />
-  <meta name="description" content="Interactive AI learning course for aerospace manufacturing professionals — 14 lessons across LLMs, RAG, agents, and ITAR-compliant deployment." />
+  <meta name="description" content="Interactive AI learning course for aerospace manufacturing professionals — 14 lessons and a 25-question final exam. Issued by Cortex Edge Learning." />
 
   <title>AI Mastery for Aerospace</title>
 
@@ -15,10 +15,8 @@
   <link rel="apple-touch-icon" href="./icons/icon-192.png" />
   <link rel="icon" type="image/png" href="./icons/icon-192.png" />
 
-  <!-- React 18 from CDN -->
   <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-  <!-- Babel Standalone to transpile JSX in-browser -->
   <script src="https://unpkg.com/@babel/standalone@7/babel.min.js"></script>
 
   <style>
@@ -31,8 +29,6 @@
       -moz-osx-font-smoothing: grayscale;
     }
     #root { min-height: 100dvh; }
-
-    /* Initial load state — shown until React mounts */
     .boot-loader {
       display: flex; align-items: center; justify-content: center;
       min-height: 100dvh; flex-direction: column; gap: 16px;
@@ -54,14 +50,12 @@
 </head>
 <body>
   <div id="root">
-    <!-- Boot loader shown while Babel transpiles the component below -->
     <div class="boot-loader" aria-label="Loading course">
       <div class="plane" aria-hidden="true">✈️</div>
       <div class="label">Loading course…</div>
     </div>
   </div>
 
-  <!-- Register service worker for offline support -->
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
@@ -72,7 +66,6 @@
     }
   </script>
 
-  <!-- The React component, transpiled by Babel at load time -->
   <script type="text/babel" data-presets="react" data-type="module">
 const { useState, useEffect, Component } = React;
 
@@ -524,28 +517,34 @@ const LESSONS = [
 
 // ─── COMPONENTS ────────────────────────────────────────────────────────────────
 
-function Callout({ variant = "info", label, text }) {
+function Callout({ variant = "info", label, text, isComfortable }) {
   const styles = {
     info:    { bg: "#e8f4fd", border: "#1c4a7a", labelColor: "#1c4a7a" },
     warning: { bg: "#fef3e2", border: "#c84b11", labelColor: "#c84b11" },
     success: { bg: "#e8f5ee", border: "#1a6b3c", labelColor: "#1a6b3c" },
   };
   const s = styles[variant] || styles.info;
+  const bodyFont = isComfortable ? 15 : 13;
+  const pad = isComfortable ? "16px 20px" : "14px 18px";
   return (
-    <div style={{ background: s.bg, borderLeft: `4px solid ${s.border}`, borderRadius: "0 8px 8px 0", padding: "14px 18px", margin: "16px 0", fontSize: 13, lineHeight: 1.75 }}>
+    <div style={{ background: s.bg, borderLeft: `4px solid ${s.border}`, borderRadius: "0 8px 8px 0", padding: pad, margin: "16px 0", fontSize: bodyFont, lineHeight: 1.75 }}>
       {label && <div style={{ fontFamily: "monospace", fontSize: 10, letterSpacing: "0.12em", textTransform: "uppercase", color: s.labelColor, fontWeight: 700, marginBottom: 6 }}>{label}</div>}
       <div style={{ whiteSpace: "pre-wrap" }}>{text}</div>
     </div>
   );
 }
 
-function ConceptGrid({ items }) {
+function ConceptGrid({ items, isComfortable }) {
+  const titleFont = isComfortable ? 15 : 13;
+  const bodyFont  = isComfortable ? 14 : 12;
+  const pad       = isComfortable ? 20 : 16;
+  const gap       = isComfortable ? 16 : 12;
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, margin: "16px 0" }}>
+    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap, margin: "16px 0" }}>
       {items.map((item, i) => (
-        <div key={i} style={{ background: "#ede7d6", border: "1px solid #c8bfaa", borderRadius: 8, padding: 16 }}>
-          <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 6, color: "#1a1208" }}>{item.title}</div>
-          <div style={{ fontSize: 12, lineHeight: 1.65, color: "#5a4e3f" }}>{item.text}</div>
+        <div key={i} style={{ background: "#ede7d6", border: "1px solid #c8bfaa", borderRadius: 8, padding: pad }}>
+          <div style={{ fontSize: titleFont, fontWeight: 700, marginBottom: 6, color: "#1a1208" }}>{item.title}</div>
+          <div style={{ fontSize: bodyFont, lineHeight: 1.65, color: "#5a4e3f" }}>{item.text}</div>
         </div>
       ))}
     </div>
@@ -800,24 +799,818 @@ function QuizSet({ quizzes }) {
   );
 }
 
-function LessonView({ lesson, lessonIdx, totalLessons, onPrev, onNext, isCompleted }) {
+// ─── FINAL EXAM ────────────────────────────────────────────────────────────────
+// 25 moderate-difficulty questions drawn from all four phases.
+// options[0] is always the correct answer — order is randomized at display time.
+const FINAL_EXAM = [
+  // Phase 1 — Foundation (7 questions)
+  { phase: "P1", q: "What is the primary role of the 'context window' in an LLM?",
+    options: ["The hard limit on how many tokens the model can process in one conversation",
+              "The amount of RAM the model uses at runtime",
+              "The user interface where prompts are typed",
+              "The time window during which API calls are valid"] },
+  { phase: "P1", q: "Why can the same prompt produce different outputs when sent to an LLM multiple times?",
+    options: ["LLMs sample from a probability distribution rather than picking one deterministic answer",
+              "LLMs update their weights after every response",
+              "LLMs share responses across users in real time",
+              "LLMs always produce different outputs by design of the hardware"] },
+  { phase: "P1", q: "A token is best described as:",
+    options: ["A small chunk of text (roughly 3-4 characters on average) converted to numbers",
+              "A single complete word in English",
+              "The user's API authentication string",
+              "A unit of GPU memory"] },
+  { phase: "P1", q: "Which statement about the current LLM landscape is most accurate?",
+    options: ["Different models have different strengths — picking the right one for the task matters",
+              "GPT-4 is universally superior to every other model for every task",
+              "All frontier LLMs produce essentially identical outputs",
+              "Open-source models cannot match proprietary model quality in any domain"] },
+  { phase: "P1", q: "The safest way to store your Anthropic API key in a Python project is:",
+    options: ["In a .env file that is excluded from version control via .gitignore",
+              "Hardcoded as a string literal at the top of your main script",
+              "Committed to a public GitHub repository for easy access",
+              "Shared in team chat so everyone has a copy"] },
+  { phase: "P1", q: "What does the 'model' parameter do in an API call like client.messages.create(model='claude-opus-4-5', ...)?",
+    options: ["Selects which specific Claude model version will process the request",
+              "Sets the maximum cost of the API call",
+              "Determines the user's subscription tier",
+              "Controls whether the response is streamed or returned at once"] },
+  { phase: "P1", q: "When choosing a Windows dev environment for AI work, which of these is most important for aerospace use cases?",
+    options: ["Ability to run models and code locally without sending controlled data to external services",
+              "Having the newest possible GPU regardless of compatibility",
+              "Always using cloud IDEs to avoid local setup",
+              "Matching the operating system used by colleagues in IT"] },
+
+  // Phase 2 — Build (6 questions)
+  { phase: "P2", q: "The single most important reason prompt engineering matters in production:",
+    options: ["The quality of the prompt directly determines the quality and reliability of the output",
+              "It's required by Python syntax",
+              "It reduces API billing by default",
+              "It makes the model faster at runtime"] },
+  { phase: "P2", q: "Which prompting technique gives the most reliable outputs on structured analytical tasks?",
+    options: ["Providing a clear role, explicit instructions, and a few example input-output pairs",
+              "Typing the request as briefly as possible to save tokens",
+              "Using ALL CAPS to emphasize urgency",
+              "Asking the model to guess what you meant"] },
+  { phase: "P2", q: "Retrieval Augmented Generation (RAG) solves which core LLM limitation?",
+    options: ["The model has no knowledge of your proprietary documents and cannot recall facts outside its training data",
+              "The model cannot generate English text",
+              "The model cannot follow multi-turn conversations",
+              "The model uses too little memory"] },
+  { phase: "P2", q: "In a RAG pipeline, what does the 'embedding' step accomplish?",
+    options: ["Converts text chunks into numerical vectors so similar meanings can be found via distance comparison",
+              "Compresses files to save disk space",
+              "Encrypts the documents before transmission",
+              "Translates all documents into English"] },
+  { phase: "P2", q: "For an internal aerospace tool that engineers will actually use, which stack is most pragmatic?",
+    options: ["Python + Streamlit, running locally or on an internal server, with the API key in a .env file",
+              "A full enterprise microservices architecture rewritten in Rust",
+              "A command-line-only tool with no user interface",
+              "A native Windows executable written in C++ from scratch"] },
+  { phase: "P2", q: "When your Streamlit app calls the Claude API and shows results to a user, where should the API key live?",
+    options: ["In a .env file on the server — never in the client-visible source",
+              "Embedded in the HTML returned to the browser",
+              "Printed at the top of the UI so users can verify it",
+              "In a public GitHub Gist for portability"] },
+
+  // Phase 3 — Agentic (6 questions)
+  { phase: "P3", q: "What fundamentally distinguishes an AI 'agent' from a standard LLM chatbot?",
+    options: ["An agent can call tools, observe results, and loop through multiple reasoning steps to complete a task",
+              "An agent is hosted on a different server",
+              "An agent always uses a larger model",
+              "An agent is paid-only while chatbots are free"] },
+  { phase: "P3", q: "In an agent loop, the model typically:",
+    options: ["Decides which tool to call, receives the tool's output, then reasons about the next step until the task is complete",
+              "Answers every question in exactly one turn with no iteration",
+              "Pre-generates every possible response before starting",
+              "Bypasses all external systems and relies only on its training data"] },
+  { phase: "P3", q: "Tool use in the Claude API works by:",
+    options: ["The developer defining available tools with schemas, the model requesting a tool call, and the developer executing it and returning the result",
+              "The model directly executing arbitrary code on the user's machine",
+              "The model connecting to any website it chooses without permission",
+              "The user typing tool names directly into the prompt"] },
+  { phase: "P3", q: "A multi-agent system is most useful when:",
+    options: ["A task decomposes into distinct specialized subtasks that benefit from separate focused agents",
+              "You want every response to take longer",
+              "You need to avoid using any tools",
+              "You have only one simple one-shot question to answer"] },
+  { phase: "P3", q: "In an aerospace quality workflow using an NCR (Non-Conformance Report) processing agent, the human should:",
+    options: ["Always review and make final disposition decisions — the agent drafts, humans approve",
+              "Be removed from the loop entirely once the agent is deployed",
+              "Only approve rejections, never approvals",
+              "Receive the output by fax for archival reasons"] },
+  { phase: "P3", q: "A practical safeguard when running agents that use tools is:",
+    options: ["Limiting which tools an agent can call and logging every tool invocation for review",
+              "Giving the agent unrestricted shell access to move faster",
+              "Trusting the agent to decide which systems to access without constraint",
+              "Disabling all logging to reduce storage costs"] },
+
+  // Phase 4 — Industry (6 questions)
+  { phase: "P4", q: "Under ITAR, which of these is the SAFEST handling of controlled technical data with AI?",
+    options: ["Running the model locally (e.g. via Ollama) on an air-gapped or controlled environment so data never leaves your infrastructure",
+              "Pasting drawings directly into a public ChatGPT web interface",
+              "Emailing specs to a free cloud API for summarization",
+              "Uploading controlled CAD files to any AI service advertised as 'secure'"] },
+  { phase: "P4", q: "AS9100 traceability requirements mean that when AI assists in a quality decision:",
+    options: ["You must document the inputs, the AI's output, and the human reviewer's final judgment",
+              "Documentation can be skipped if the AI is highly accurate",
+              "Only the AI output needs to be saved",
+              "No documentation is needed for AI-assisted decisions"] },
+  { phase: "P4", q: "For sensitive aerospace data that must remain in the U.S. and under access control, the best hosted option is typically:",
+    options: ["A private cloud deployment (e.g. Azure OpenAI with proper DFARS configuration) under an enterprise agreement",
+              "A personal account on a consumer chatbot service",
+              "A free-tier public API with no data processing agreement",
+              "Any offshore AI service offering the lowest token price"] },
+  { phase: "P4", q: "When prioritizing AI use cases for your operation, the most useful framework is:",
+    options: ["A 2x2 matrix comparing business value against implementation effort, starting with high-value / low-effort wins",
+              "Pick whichever use case involves the newest technology",
+              "Always start with the hardest problem first",
+              "Pursue every use case simultaneously to maximize coverage"] },
+  { phase: "P4", q: "A strong one-page AI business case for leadership should include:",
+    options: ["Problem, proposed solution, estimated cost, estimated return, risks, and a clear next step or pilot proposal",
+              "Only the projected dollar savings with no cost estimate",
+              "A list of competitors using AI, without relevance to your operation",
+              "The technical architecture in full detail and nothing else"] },
+  { phase: "P4", q: "The most common failure mode for aerospace AI pilots is:",
+    options: ["Trying to build a perfect production system before proving a working prototype delivers value",
+              "Starting too small",
+              "Documenting the work too thoroughly",
+              "Including a human reviewer in the workflow"] },
+
+  // ── Additional Phase 1 questions (pool) ─────────────────────────────────────
+  { phase: "P1", q: "What does 'temperature' control in an LLM API call?",
+    options: ["How random vs. deterministic the output is — lower values produce more consistent answers",
+              "The operating temperature of the GPU",
+              "The response speed in milliseconds",
+              "Whether the model uses Celsius or Fahrenheit in answers"] },
+  { phase: "P1", q: "The knowledge cutoff date of an LLM means:",
+    options: ["The model was trained on data up to a specific point and won't know about events after that date",
+              "The API stops working after that date",
+              "The model refuses to answer any questions after that date",
+              "The user's subscription expires on that date"] },
+  { phase: "P1", q: "Which statement about open-source models like Llama is accurate?",
+    options: ["You can download the weights and run them locally — giving you full control over data privacy and deployment",
+              "They are always worse than proprietary models at every task",
+              "They require a paid license for any commercial use",
+              "They can only run on specialized government-issued hardware"] },
+  { phase: "P1", q: "A 'hallucination' in an LLM refers to:",
+    options: ["The model generating content that sounds plausible but is factually incorrect",
+              "The model experiencing genuine consciousness",
+              "A bug in the model's user interface",
+              "The model refusing to respond to a prompt"] },
+  { phase: "P1", q: "For an engineer new to AI development, a good first step after installing Python is:",
+    options: ["Create a virtual environment, install the anthropic or openai package, store your API key in a .env file",
+              "Memorize the entire PyTorch documentation",
+              "Build a custom neural network from scratch in CUDA",
+              "Request access to the model training pipeline"] },
+  { phase: "P1", q: "A 'system prompt' differs from a regular user prompt because:",
+    options: ["It sets persistent context and behavior rules that apply across the whole conversation",
+              "It bypasses all the model's safety training",
+              "It costs more per token",
+              "Only administrators can use one"] },
+  { phase: "P1", q: "If you want a cheap, fast model for routine document classification but a smarter model for complex analysis, the right approach is:",
+    options: ["Use different model tiers for different tasks — for example Haiku for routine work, Opus for complex reasoning",
+              "Always use the most expensive model to guarantee quality",
+              "Always use the cheapest model to save money",
+              "Use whichever model the first search result recommends"] },
+
+  // ── Additional Phase 2 questions (pool) ─────────────────────────────────────
+  { phase: "P2", q: "'Few-shot prompting' means:",
+    options: ["Including a small number of example input-output pairs in the prompt to guide the model's response format",
+              "Taking only a few attempts before giving up",
+              "Sending the prompt only a few times per day",
+              "Using a prompt shorter than 10 words"] },
+  { phase: "P2", q: "Chain-of-thought prompting tends to improve results on tasks that require:",
+    options: ["Multi-step reasoning where showing intermediate steps helps the model stay on track",
+              "Retrieving a single fact from memory",
+              "Translating between two similar languages",
+              "Generating creative titles"] },
+  { phase: "P2", q: "A vector database is used in RAG to:",
+    options: ["Store embeddings of document chunks so semantically similar content can be retrieved quickly at query time",
+              "Replace the LLM entirely",
+              "Speed up the user's internet connection",
+              "Encrypt the documents at rest"] },
+  { phase: "P2", q: "Good chunk size for RAG document ingestion is usually:",
+    options: ["A few hundred tokens — large enough to preserve context, small enough to keep retrieval specific",
+              "Always the entire document as a single chunk",
+              "A single sentence per chunk regardless of context",
+              "Exactly 4,000 characters always, regardless of content"] },
+  { phase: "P2", q: "When building an internal tool, the smallest viable feedback loop is typically:",
+    options: ["A thumbs up/down button logged with the prompt and response for later review",
+              "A quarterly user satisfaction survey only",
+              "No feedback mechanism at all",
+              "A full-text essay field required before every response"] },
+  { phase: "P2", q: "Streamlit is particularly suited to internal engineering tools because:",
+    options: ["It lets you turn a Python script into a web UI with minimal code and no frontend expertise required",
+              "It only works for Java applications",
+              "It requires a complex build pipeline",
+              "It is only available on Linux servers"] },
+  { phase: "P2", q: "An effective pattern for prompts that must return structured data (like JSON) is:",
+    options: ["Explicitly specify the JSON schema in the prompt and request the model wrap the output in clear delimiters",
+              "Trust the model to guess the format you want",
+              "Only ask yes/no questions and concatenate the answers",
+              "Avoid mentioning JSON so the model figures it out"] },
+
+  // ── Additional Phase 3 questions (pool) ─────────────────────────────────────
+  { phase: "P3", q: "An agent's 'scratchpad' or 'working memory' is used to:",
+    options: ["Let the model accumulate intermediate reasoning and tool results across loop iterations",
+              "Store the user's account password",
+              "Hold marketing emails from the vendor",
+              "Record the temperature of the server room"] },
+  { phase: "P3", q: "If an agent gets stuck in a loop calling the same tool repeatedly, a reasonable safeguard is:",
+    options: ["Set a maximum iteration count or tool-call budget and fail gracefully when exceeded",
+              "Let it run indefinitely until it figures out the answer",
+              "Immediately delete all the agent's previous responses",
+              "Add more expensive tools to the agent"] },
+  { phase: "P3", q: "In a multi-agent 'planner + executor' pattern, the planner's job is:",
+    options: ["Decompose the user's goal into a sequence of steps that the executor(s) can carry out",
+              "Write the final marketing report",
+              "Physically install hardware",
+              "Hire new agents from a marketplace"] },
+  { phase: "P3", q: "When an agent has access to external tools, an important design consideration is:",
+    options: ["Carefully scoping what each tool can do — a 'send_email' tool should not also have database-write permissions",
+              "Giving every tool root access to keep things simple",
+              "Combining all tools into a single generic 'do_anything' tool",
+              "Making sure tools all use the same color scheme"] },
+  { phase: "P3", q: "For a supplier-qualification agent in aerospace, a sensible workflow is:",
+    options: ["Agent fetches supplier docs, checks against requirements, produces a summary with flagged concerns, human approves final qualification",
+              "Agent autonomously approves or rejects suppliers with no human review",
+              "Agent emails the supplier directly to make the decision",
+              "Agent ignores ITAR status because it slows things down"] },
+  { phase: "P3", q: "A fundamental benefit of building with agents rather than monolithic prompts is:",
+    options: ["The agent can gather missing information and adapt its plan mid-task instead of guessing once up front",
+              "Agents never make mistakes",
+              "Agents don't need API keys",
+              "Agents automatically handle their own billing"] },
+  { phase: "P3", q: "The Model Context Protocol (MCP) is designed to:",
+    options: ["Standardize how tools and data sources are exposed to LLM-based applications across vendors",
+              "Replace HTTP entirely",
+              "Increase the maximum token count of any model",
+              "Eliminate the need for prompt engineering"] },
+
+  // ── Additional Phase 4 questions (pool) ─────────────────────────────────────
+  { phase: "P4", q: "CUI (Controlled Unclassified Information) in aerospace typically requires:",
+    options: ["Handling under NIST 800-171 or equivalent controls, including where any AI processing occurs",
+              "No special handling at all",
+              "Handling only when the data is printed, not digital",
+              "Sharing publicly to maximize transparency"] },
+  { phase: "P4", q: "Before sending any document to a public AI API in aerospace, the first check should be:",
+    options: ["Whether the document contains export-controlled, proprietary, or CUI data — and whether a Data Processing Agreement covers this use",
+              "Whether the document has a cover page",
+              "Whether it's Monday or Friday",
+              "Whether the file is larger than 10 MB"] },
+  { phase: "P4", q: "A strong pilot scope for proving AI value in manufacturing is:",
+    options: ["A single well-defined workflow where success is measurable in hours saved or errors caught",
+              "An enterprise-wide replacement of all document processes",
+              "A three-year roadmap with no deliverables in year one",
+              "A rebuild of the company's ERP system"] },
+  { phase: "P4", q: "When estimating ROI for an NCR-processing assistant that saves a quality engineer 15 minutes per report:",
+    options: ["Multiply time saved × fully-loaded labor rate × NCR volume, and subtract API costs and reviewer overhead",
+              "Assume zero cost forever because APIs are 'free'",
+              "Assume 100% time savings and no human review time",
+              "Guess — ROI calculations are never needed for AI"] },
+  { phase: "P4", q: "The right way to present an AI pilot to a skeptical executive is:",
+    options: ["Specific use case, concrete numbers, clear risk and mitigation, small bounded investment, measurable success criteria",
+              "A long philosophical essay on the future of AI",
+              "A live demo with no preparation or script",
+              "A press release quoting industry analysts only"] },
+  { phase: "P4", q: "A realistic expectation for a first AI pilot in an aerospace shop is:",
+    options: ["Demonstrate measurable value on one workflow within 8-12 weeks, then expand based on what you learned",
+              "Replace 50% of engineering staff within the first month",
+              "Require zero changes to existing processes",
+              "Run for two years before producing any results"] },
+  { phase: "P4", q: "A common mistake when documenting AI-assisted decisions is:",
+    options: ["Saving only the AI output without also capturing the prompt, model version, and human reviewer's rationale",
+              "Using too much detail",
+              "Including the date",
+              "Keeping records in version control"] },
+];
+
+// Fisher-Yates shuffle — returns a new shuffled copy of an array
+function shuffleArray(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+// Fisher-Yates shuffle for option text that also returns the new index of the originally-correct answer
+function shuffleOptions(options) {
+  const indexed = options.map((text, origIdx) => ({ text, origIdx }));
+  const shuffled = shuffleArray(indexed);
+  const newCorrectIdx = shuffled.findIndex(x => x.origIdx === 0);
+  return { shuffled: shuffled.map(x => x.text), correctIdx: newCorrectIdx };
+}
+
+// Build a fresh 25-question exam attempt using stratified sampling:
+// proportionally pull questions from each phase pool, then shuffle the overall order
+// and randomize option order per question.
+function buildExamAttempt() {
+  const EXAM_SIZE = 25;
+  const phases = ["P1", "P2", "P3", "P4"];
+
+  // Group pool by phase
+  const byPhase = {};
+  phases.forEach(p => { byPhase[p] = FINAL_EXAM.filter(q => q.phase === p); });
+
+  // Allocate question count per phase (proportional to pool sizes)
+  const totalPool = FINAL_EXAM.length;
+  const allocations = {};
+  let allocated = 0;
+  phases.forEach((p, i) => {
+    if (i === phases.length - 1) {
+      allocations[p] = EXAM_SIZE - allocated;
+    } else {
+      const share = Math.round((byPhase[p].length / totalPool) * EXAM_SIZE);
+      allocations[p] = Math.min(share, byPhase[p].length);
+      allocated += allocations[p];
+    }
+  });
+
+  // Pull randomized questions from each phase
+  const selected = [];
+  phases.forEach(p => {
+    const shuffledPool = shuffleArray(byPhase[p]);
+    selected.push(...shuffledPool.slice(0, allocations[p]));
+  });
+
+  // Shuffle the final order so phases are mixed
+  const ordered = shuffleArray(selected);
+
+  // Build attempt with per-question option shuffling
+  return ordered.map((item, i) => {
+    const { shuffled, correctIdx } = shuffleOptions(item.options);
+    return { id: i, phase: item.phase, q: item.q, options: shuffled, correctIdx };
+  });
+}
+
+function FinalExamView({ onExit, isComfortable }) {
+  const [attempt, setAttempt] = useState(() => buildExamAttempt());
+  const [answers, setAnswers] = useState({});
+  const [submitted, setSubmitted] = useState(false);
+  const [studentName, setStudentName] = useState("");
+
+  const maxW = isComfortable ? 1040 : 780;
+  const pad  = isComfortable ? "56px 56px 96px" : "40px 28px 80px";
+  const qFont = isComfortable ? 16 : 14;
+  const optFont = isComfortable ? 15 : 13;
+
+  const totalQuestions = attempt.length;
+  const answeredCount = Object.keys(answers).length;
+  const allAnswered = answeredCount === totalQuestions;
+
+  const correctCount = attempt.filter(q => answers[q.id] === q.correctIdx).length;
+  const scorePct = Math.round((correctCount / totalQuestions) * 100);
+  const passed = scorePct >= 85;
+
+  const handleSubmit = () => {
+    if (!allAnswered) {
+      const firstUnanswered = attempt.findIndex(q => answers[q.id] === undefined);
+      if (firstUnanswered >= 0) {
+        const el = document.getElementById(`exam-q-${attempt[firstUnanswered].id}`);
+        if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+      return;
+    }
+    setSubmitted(true);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleReset = () => {
+    setAttempt(buildExamAttempt());
+    setAnswers({});
+    setSubmitted(false);
+    setStudentName("");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const downloadCertificate = () => {
+    const name = studentName.trim() || "Course Graduate";
+    const date = new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+    const svg = `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 850" width="1100" height="850">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#f5f0e8"/>
+      <stop offset="100%" stop-color="#ede7d6"/>
+    </linearGradient>
+    <radialGradient id="foilGold" cx="35%" cy="30%" r="75%">
+      <stop offset="0%"  stop-color="#fff5d6"/>
+      <stop offset="25%" stop-color="#e8c87a"/>
+      <stop offset="55%" stop-color="#b8913a"/>
+      <stop offset="85%" stop-color="#8a6a20"/>
+      <stop offset="100%" stop-color="#5a4410"/>
+    </radialGradient>
+    <radialGradient id="foilGoldInner" cx="40%" cy="35%" r="70%">
+      <stop offset="0%"  stop-color="#fff2c4"/>
+      <stop offset="35%" stop-color="#d9b25a"/>
+      <stop offset="75%" stop-color="#a07828"/>
+      <stop offset="100%" stop-color="#6b5014"/>
+    </radialGradient>
+    <radialGradient id="sheen" cx="35%" cy="25%" r="45%">
+      <stop offset="0%"  stop-color="rgba(255,253,230,0.7)"/>
+      <stop offset="60%" stop-color="rgba(255,253,230,0)"/>
+    </radialGradient>
+    <filter id="emboss" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="2"/>
+      <feOffset dx="1" dy="3" result="offsetblur"/>
+      <feComponentTransfer><feFuncA type="linear" slope="0.35"/></feComponentTransfer>
+      <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="flatShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="1.5"/>
+      <feOffset dx="1" dy="2" result="offsetblur"/>
+      <feComponentTransfer><feFuncA type="linear" slope="0.28"/></feComponentTransfer>
+      <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <rect width="1100" height="850" fill="url(#bg)"/>
+  <rect x="30" y="30" width="1040" height="790" fill="none" stroke="#1a1208" stroke-width="3"/>
+  <rect x="45" y="45" width="1010" height="760" fill="none" stroke="#c84b11" stroke-width="1"/>
+
+  <text x="550" y="150" font-family="Georgia, serif" font-size="22" fill="#7a6e5f" text-anchor="middle" letter-spacing="6">CERTIFICATE OF COMPLETION</text>
+  <line x1="350" y1="180" x2="750" y2="180" stroke="#c84b11" stroke-width="1"/>
+
+  <text x="550" y="260" font-family="Georgia, serif" font-size="48" font-weight="bold" fill="#1a1208" text-anchor="middle">AI for Engineering Mastery</text>
+  <text x="550" y="305" font-family="Georgia, serif" font-size="20" font-style="italic" fill="#7a6e5f" text-anchor="middle">Aerospace Manufacturing Track</text>
+
+  <text x="550" y="395" font-family="Georgia, serif" font-size="18" fill="#2a2018" text-anchor="middle">This certifies that</text>
+
+  <!-- LEFT EMBLEM: Foil-embossed education seal -->
+  <g transform="translate(160, 465)" filter="url(#emboss)">
+    <circle r="72" fill="url(#foilGold)"/>
+    <circle r="72" fill="none" stroke="#5a4410" stroke-width="1.5"/>
+    <circle r="58" fill="none" stroke="#5a4410" stroke-width="1.5"/>
+    <circle r="58" fill="url(#foilGoldInner)"/>
+    <g fill="#6b5014">
+      <circle cx="0" cy="-65" r="1.8"/><circle cx="32" cy="-57" r="1.8"/>
+      <circle cx="57" cy="-32" r="1.8"/><circle cx="65" cy="0" r="1.8"/>
+      <circle cx="57" cy="32" r="1.8"/><circle cx="32" cy="57" r="1.8"/>
+      <circle cx="0" cy="65" r="1.8"/><circle cx="-32" cy="57" r="1.8"/>
+      <circle cx="-57" cy="32" r="1.8"/><circle cx="-65" cy="0" r="1.8"/>
+      <circle cx="-57" cy="-32" r="1.8"/><circle cx="-32" cy="-57" r="1.8"/>
+    </g>
+    <g fill="#8a6a20" stroke="#5a4410" stroke-width="1">
+      <ellipse cx="-44" cy="16" rx="8" ry="3" transform="rotate(-30 -44 16)"/>
+      <ellipse cx="-46" cy="4" rx="8" ry="3" transform="rotate(-15 -46 4)"/>
+      <ellipse cx="-46" cy="-8" rx="8" ry="3" transform="rotate(15 -46 -8)"/>
+      <ellipse cx="-44" cy="-20" rx="8" ry="3" transform="rotate(30 -44 -20)"/>
+    </g>
+    <g fill="#8a6a20" stroke="#5a4410" stroke-width="1">
+      <ellipse cx="44" cy="16" rx="8" ry="3" transform="rotate(30 44 16)"/>
+      <ellipse cx="46" cy="4" rx="8" ry="3" transform="rotate(15 46 4)"/>
+      <ellipse cx="46" cy="-8" rx="8" ry="3" transform="rotate(-15 46 -8)"/>
+      <ellipse cx="44" cy="-20" rx="8" ry="3" transform="rotate(-30 44 -20)"/>
+    </g>
+    <g transform="translate(0, 4)">
+      <path d="M -22 10 Q 0 16 22 10 L 22 -8 Q 0 -2 -22 -8 Z" fill="#6b5014"/>
+      <path d="M -20 8 Q 0 14 20 8 L 20 -7 Q 0 -1 -20 -7 Z" fill="#fff2c4" opacity="0.75"/>
+      <line x1="0" y1="-4" x2="0" y2="12" stroke="#5a4410" stroke-width="1"/>
+      <line x1="-15" y1="0" x2="-4" y2="2" stroke="#5a4410" stroke-width="0.7"/>
+      <line x1="-15" y1="5" x2="-4" y2="7" stroke="#5a4410" stroke-width="0.7"/>
+      <line x1="4" y1="2" x2="15" y2="0" stroke="#5a4410" stroke-width="0.7"/>
+      <line x1="4" y1="7" x2="15" y2="5" stroke="#5a4410" stroke-width="0.7"/>
+    </g>
+    <g transform="translate(0, -22)">
+      <rect x="-3" y="-2" width="6" height="8" fill="#6b5014"/>
+      <path d="M 0 -16 Q -6 -9 -3 -3 Q 0 -7 0 -3 Q 0 -7 3 -3 Q 6 -9 0 -16 Z" fill="#b8913a"/>
+      <path d="M 0 -13 Q -3 -8 -1.5 -4 Q 0 -6 0 -4 Q 0 -6 1.5 -4 Q 3 -8 0 -13 Z" fill="#fff2c4" opacity="0.75"/>
+    </g>
+    <g>
+      <path d="M -44 42 L 44 42 L 38 60 L -38 60 Z" fill="#8a6a20" stroke="#5a4410" stroke-width="1"/>
+      <text x="0" y="54" font-family="Georgia, serif" font-size="9" font-weight="bold" fill="#fff2c4" text-anchor="middle" letter-spacing="2">MASTERY</text>
+    </g>
+    <circle r="70" fill="url(#sheen)"/>
+  </g>
+
+  <!-- RIGHT EMBLEM: Solid deep teal — Cortex Edge Learning -->
+  <g transform="translate(940, 465)" filter="url(#flatShadow)">
+    <circle r="72" fill="#1c4a7a"/>
+    <circle r="72" fill="none" stroke="#13324f" stroke-width="1.5"/>
+    <circle r="58" fill="none" stroke="#7aa8d4" stroke-width="1" opacity="0.5"/>
+    <circle r="58" fill="#153c64"/>
+    <g fill="#e8d8b8">
+      <circle cx="0" cy="-65" r="1.8"/><circle cx="32" cy="-57" r="1.8"/>
+      <circle cx="57" cy="-32" r="1.8"/><circle cx="65" cy="0" r="1.8"/>
+      <circle cx="57" cy="32" r="1.8"/><circle cx="32" cy="57" r="1.8"/>
+      <circle cx="0" cy="65" r="1.8"/><circle cx="-32" cy="57" r="1.8"/>
+      <circle cx="-57" cy="32" r="1.8"/><circle cx="-65" cy="0" r="1.8"/>
+      <circle cx="-57" cy="-32" r="1.8"/><circle cx="-32" cy="-57" r="1.8"/>
+    </g>
+    <g transform="translate(0, -26)">
+      <path d="M -11 3 L 0 -8 L 11 3" fill="none" stroke="#e8d8b8" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+      <path d="M -7 6 L 0 -1 L 7 6" fill="none" stroke="#e8d8b8" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round" opacity="0.55"/>
+    </g>
+    <text x="0" y="-5" font-family="Georgia, serif" font-size="14" font-weight="bold" fill="#f5f0e8" text-anchor="middle" letter-spacing="3">CORTEX</text>
+    <text x="0" y="13" font-family="Georgia, serif" font-size="14" font-weight="bold" fill="#f5f0e8" text-anchor="middle" letter-spacing="3">EDGE</text>
+    <line x1="-30" y1="20" x2="30" y2="20" stroke="#7aa8d4" stroke-width="0.8"/>
+    <text x="0" y="36" font-family="Georgia, serif" font-size="11" font-style="italic" fill="#b5ccdf" text-anchor="middle">learning</text>
+    <g>
+      <path d="M -44 42 L 44 42 L 38 60 L -38 60 Z" fill="#13324f" stroke="#0d2338" stroke-width="1"/>
+      <text x="0" y="54" font-family="Georgia, serif" font-size="9" font-weight="bold" fill="#e8d8b8" text-anchor="middle" letter-spacing="1">EST. 2026</text>
+    </g>
+  </g>
+
+  <text x="550" y="465" font-family="Georgia, serif" font-size="44" font-weight="bold" fill="#c84b11" text-anchor="middle">${escapeXml(name)}</text>
+
+  <line x1="270" y1="495" x2="830" y2="495" stroke="#c8bfaa" stroke-width="1"/>
+
+  <text x="550" y="555" font-family="Georgia, serif" font-size="17" fill="#2a2018" text-anchor="middle">has passed the course to the standards established by Cortex Edge Learning</text>
+
+  <line x1="200" y1="745" x2="450" y2="745" stroke="#1a1208" stroke-width="1"/>
+  <text x="325" y="765" font-family="Georgia, serif" font-size="13" fill="#1a1208" text-anchor="middle">${escapeXml(date)}</text>
+  <text x="325" y="782" font-family="monospace" font-size="9" fill="#7a6e5f" text-anchor="middle" letter-spacing="2">DATE OF COMPLETION</text>
+
+  <line x1="650" y1="745" x2="900" y2="745" stroke="#1a1208" stroke-width="1"/>
+  <text x="775" y="765" font-family="Georgia, serif" font-size="13" fill="#1a1208" text-anchor="middle">Cortex Edge Learning</text>
+  <text x="775" y="782" font-family="monospace" font-size="9" fill="#7a6e5f" text-anchor="middle" letter-spacing="2">ISSUING ORGANIZATION</text>
+</svg>`;
+    const blob = new Blob([svg], { type: "image/svg+xml" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    const safeName = name.replace(/[^a-z0-9_-]/gi, "_");
+    a.download = `AI_Engineering_Mastery_Certificate_${safeName}.svg`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  return (
+    <div style={{ maxWidth: maxW, margin: "0 auto", padding: pad, width: "100%" }}>
+      {/* Header */}
+      <div style={{ fontFamily: "monospace", fontSize: 10, letterSpacing: "0.18em", color: "#7a6e5f", textTransform: "uppercase", marginBottom: 10, display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+        <span style={{ background: "#1a1208", color: "#e8a87c", padding: "2px 10px", borderRadius: 3, fontSize: 9, letterSpacing: "0.2em" }}>FINAL EXAM</span>
+        <span>{totalQuestions} questions · 85% to pass</span>
+      </div>
+      <h1 style={{ fontSize: isComfortable ? "clamp(32px,3.5vw,48px)" : "clamp(26px,3.5vw,40px)", fontWeight: 700, lineHeight: 1.1, letterSpacing: "-0.02em", marginBottom: 8, color: "#1a1208" }}>
+        AI for Engineering Mastery
+      </h1>
+      <p style={{ fontSize: isComfortable ? 18 : 16, fontWeight: 300, fontStyle: "italic", color: "#7a6e5f", marginBottom: 20, lineHeight: 1.55 }}>
+        A comprehensive test across all four phases. No feedback is shown until you submit. Answer all {totalQuestions} questions, then click Submit.
+      </p>
+
+      {/* Results banner (shown after submit) */}
+      {submitted && (
+        <div role="status" style={{
+          padding: isComfortable ? "24px 28px" : "20px 20px",
+          marginBottom: 28,
+          borderRadius: 12,
+          background: passed ? "rgba(26,107,60,0.1)" : "rgba(200,75,17,0.1)",
+          border: `2px solid ${passed ? "#1a6b3c" : "#c84b11"}`,
+        }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap" }}>
+            <div style={{ fontSize: isComfortable ? 44 : 36 }}>{passed ? "🎓" : "📚"}</div>
+            <div style={{ flex: 1, minWidth: 200 }}>
+              <div style={{ fontFamily: "monospace", fontSize: 11, letterSpacing: "0.18em", color: passed ? "#14522e" : "#8b2020", textTransform: "uppercase", marginBottom: 4, fontWeight: 700 }}>
+                {passed ? "Pass" : "Not yet passing"}
+              </div>
+              <div style={{ fontSize: isComfortable ? 24 : 20, fontWeight: 700, color: passed ? "#14522e" : "#8b2020", marginBottom: 4 }}>
+                {correctCount} of {totalQuestions} correct — {scorePct}%
+              </div>
+              <div style={{ fontSize: isComfortable ? 14 : 13, color: "#2a2018", lineHeight: 1.5 }}>
+                {passed
+                  ? "Excellent work. You've demonstrated comprehension across all four phases of the course. Enter your name below to download your certificate."
+                  : `You need 85% (${Math.ceil(totalQuestions * 0.85)} correct) to pass. Review the questions you missed below, then reset the test to try again. The question order and option order will be re-randomized.`}
+              </div>
+            </div>
+          </div>
+
+          {/* Certificate section (pass only) */}
+          {passed && (
+            <div style={{ marginTop: 20, paddingTop: 20, borderTop: "1px solid rgba(26,107,60,0.25)" }}>
+              <label htmlFor="cert-name" style={{ display: "block", fontFamily: "monospace", fontSize: 10, letterSpacing: "0.12em", color: "#14522e", textTransform: "uppercase", marginBottom: 8, fontWeight: 700 }}>
+                Name for Certificate
+              </label>
+              <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+                <input
+                  id="cert-name"
+                  type="text"
+                  value={studentName}
+                  onChange={(e) => setStudentName(e.target.value)}
+                  placeholder="Your name as you'd like it to appear"
+                  maxLength={60}
+                  style={{
+                    flex: 1, minWidth: 220,
+                    padding: "10px 14px",
+                    fontSize: 15, fontFamily: "Georgia, serif",
+                    background: "#fff", color: "#1a1208",
+                    border: "1px solid #c8bfaa", borderRadius: 6,
+                  }}
+                />
+                <button
+                  onClick={downloadCertificate}
+                  disabled={!studentName.trim()}
+                  aria-label="Download certificate"
+                  style={{
+                    fontFamily: "monospace", fontSize: 11,
+                    letterSpacing: "0.1em", textTransform: "uppercase",
+                    padding: "11px 22px",
+                    background: studentName.trim() ? "#1a6b3c" : "#a8a8a8",
+                    color: "#fff", border: "none", borderRadius: 6,
+                    cursor: studentName.trim() ? "pointer" : "not-allowed",
+                    fontWeight: 700,
+                  }}>
+                  Download Certificate ↓
+                </button>
+              </div>
+              <div style={{ fontSize: 11, color: "#5a4e3f", marginTop: 8, fontStyle: "italic" }}>
+                Certificate downloads as an SVG — opens in any browser and can be printed, converted to PDF, or shared.
+              </div>
+            </div>
+          )}
+
+          {/* Reset button (fail only) */}
+          {!passed && (
+            <div style={{ marginTop: 20 }}>
+              <button
+                onClick={handleReset}
+                aria-label="Reset test and try again"
+                style={{
+                  fontFamily: "monospace", fontSize: 11,
+                  letterSpacing: "0.1em", textTransform: "uppercase",
+                  padding: "11px 22px",
+                  background: "#c84b11",
+                  color: "#fff", border: "none", borderRadius: 6,
+                  cursor: "pointer", fontWeight: 700,
+                }}>
+                ↻ Reset Test & Try Again
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Progress indicator (before submit) */}
+      {!submitted && (
+        <div style={{ padding: "14px 18px", marginBottom: 24, background: "#ede7d6", border: "1px solid #c8bfaa", borderRadius: 8, display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap" }}>
+          <div style={{ flex: 1, minWidth: 200 }}>
+            <div style={{ fontFamily: "monospace", fontSize: 10, letterSpacing: "0.12em", color: "#7a6e5f", textTransform: "uppercase", marginBottom: 4 }}>
+              Progress
+            </div>
+            <div style={{ fontSize: 14, color: "#1a1208", fontWeight: 600 }}>
+              {answeredCount} of {totalQuestions} answered
+            </div>
+          </div>
+          <div style={{ width: 160, height: 6, background: "rgba(26,18,8,0.1)", borderRadius: 3, overflow: "hidden" }}>
+            <div style={{ height: "100%", background: "#1a1208", width: `${(answeredCount / totalQuestions) * 100}%`, transition: "width 0.3s ease" }} />
+          </div>
+        </div>
+      )}
+
+      {/* Questions */}
+      {attempt.map((q, qi) => {
+        const chosen = answers[q.id];
+        const isCorrect = submitted && chosen === q.correctIdx;
+        const isWrong   = submitted && chosen !== q.correctIdx;
+        return (
+          <div
+            key={q.id}
+            id={`exam-q-${q.id}`}
+            style={{
+              background: submitted
+                ? (isCorrect ? "rgba(26,107,60,0.06)" : "rgba(192,57,43,0.06)")
+                : "#ede7d6",
+              border: `1px solid ${submitted ? (isCorrect ? "rgba(26,107,60,0.3)" : "rgba(192,57,43,0.4)") : "#c8bfaa"}`,
+              borderRadius: 12,
+              padding: isComfortable ? 22 : 18,
+              marginBottom: 14,
+            }}>
+            <div style={{ fontSize: qFont, fontWeight: 600, marginBottom: 12, lineHeight: 1.5, color: "#1a1208", display: "flex", alignItems: "flex-start", gap: 10 }}>
+              <span style={{ fontFamily: "monospace", fontSize: qFont - 2, color: "#7a6e5f", flexShrink: 0 }}>Q{qi + 1}.</span>
+              <span style={{ flex: 1 }}>{q.q}</span>
+              {submitted && (
+                <span style={{ fontFamily: "monospace", fontSize: 11, fontWeight: 700, color: isCorrect ? "#14522e" : "#8b2020", flexShrink: 0, letterSpacing: "0.08em" }}>
+                  {isCorrect ? "✓ CORRECT" : "✗ WRONG"}
+                </span>
+              )}
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              {q.options.map((opt, oi) => {
+                let bg = "#f5f0e8", border = "#c8bfaa", color = "#1a1208";
+                if (submitted) {
+                  if (oi === q.correctIdx) { bg = "rgba(26,107,60,0.12)"; border = "#1a6b3c"; color = "#14522e"; }
+                  else if (oi === chosen) { bg = "rgba(192,57,43,0.1)"; border = "#c0392b"; color = "#7a1f10"; }
+                } else if (oi === chosen) {
+                  bg = "#1a1208"; border = "#1a1208"; color = "#f5f0e8";
+                }
+                const letter = String.fromCharCode(65 + oi);
+                return (
+                  <button
+                    key={oi}
+                    disabled={submitted}
+                    onClick={() => setAnswers(a => ({ ...a, [q.id]: oi }))}
+                    aria-label={`Option ${letter}: ${opt}`}
+                    aria-pressed={oi === chosen}
+                    style={{
+                      padding: isComfortable ? "13px 18px" : "11px 15px",
+                      border: `1px solid ${border}`,
+                      borderRadius: 8,
+                      cursor: submitted ? "default" : "pointer",
+                      fontSize: optFont, lineHeight: 1.45,
+                      textAlign: "left", background: bg, color,
+                      fontFamily: "inherit",
+                      display: "flex", alignItems: "flex-start", gap: 10,
+                      transition: "background 0.12s, border-color 0.12s",
+                      fontWeight: oi === chosen && !submitted ? 600 : 400,
+                    }}>
+                    <span style={{ fontFamily: "monospace", fontSize: optFont - 2, flexShrink: 0, marginTop: 1, fontWeight: 700, opacity: 0.75 }}>
+                      {submitted
+                        ? (oi === q.correctIdx ? "✓" : oi === chosen ? "✗" : letter)
+                        : letter}
+                    </span>
+                    <span>{opt}</span>
+                  </button>
+                );
+              })}
+            </div>
+            {submitted && isWrong && chosen !== undefined && (
+              <div style={{ marginTop: 12, padding: "10px 14px", borderRadius: 6, fontSize: 12, lineHeight: 1.55, background: "rgba(26,107,60,0.08)", color: "#14522e", border: "1px solid rgba(26,107,60,0.2)" }}>
+                <span style={{ fontWeight: 700 }}>Correct answer: </span>
+                {q.options[q.correctIdx]}
+              </div>
+            )}
+          </div>
+        );
+      })}
+
+      {/* Submit + Exit buttons */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 32, paddingTop: 24, borderTop: "1px solid #c8bfaa", gap: 12, flexWrap: "wrap" }}>
+        <button
+          onClick={onExit}
+          aria-label="Return to course home"
+          style={{ fontFamily: "monospace", fontSize: 11, letterSpacing: "0.08em", textTransform: "uppercase", padding: "11px 22px", borderRadius: 6, border: "1px solid #c8bfaa", background: "transparent", cursor: "pointer", color: "#7a6e5f" }}>
+          ← Exit to Course
+        </button>
+
+        {!submitted ? (
+          <button
+            onClick={handleSubmit}
+            disabled={!allAnswered}
+            aria-label={allAnswered ? "Submit answers and see results" : `Answer all ${totalQuestions} questions first`}
+            style={{
+              fontFamily: "monospace", fontSize: 12,
+              letterSpacing: "0.1em", textTransform: "uppercase",
+              padding: "14px 28px", borderRadius: 6, border: "none",
+              background: allAnswered ? "#1a6b3c" : "#a8a8a8",
+              color: "#fff", cursor: allAnswered ? "pointer" : "not-allowed",
+              fontWeight: 700,
+            }}>
+            {allAnswered ? "Submit Answers →" : `${totalQuestions - answeredCount} Remaining`}
+          </button>
+        ) : (
+          <button
+            onClick={handleReset}
+            aria-label="Reset test and try again"
+            style={{ fontFamily: "monospace", fontSize: 11, letterSpacing: "0.08em", textTransform: "uppercase", padding: "11px 22px", borderRadius: 6, border: "1px solid #c84b11", background: "transparent", color: "#c84b11", cursor: "pointer", fontWeight: 700 }}>
+            ↻ Reset & Retake
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// Helper: escape text for safe SVG embedding
+function escapeXml(s) {
+  return String(s)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&apos;");
+}
+
+function LessonView({ lesson, lessonIdx, totalLessons, onPrev, onNext, isCompleted, isComfortable }) {
+  // Scale typography and spacing based on display mode
+  const pFont     = isComfortable ? 17 : 15;
+  const pSpacing  = isComfortable ? 18 : 16;
+  const h3Font    = isComfortable ? 22 : 19;
+  const h3Margin  = isComfortable ? "32px 0 12px" : "28px 0 10px";
+  const subFont   = isComfortable ? 18 : 16;
+  const maxW      = isComfortable ? 1040 : 780;
+  const pad       = isComfortable ? "56px 56px 96px" : "40px 36px 80px";
+
   const renderBlock = (block, i) => {
     switch (block.type) {
-      case "p": return <p key={i} style={{ fontSize: 15, lineHeight: 1.7, marginBottom: 16, color: "#2a2018" }}>{block.text}</p>;
+      case "p": return <p key={i} style={{ fontSize: pFont, lineHeight: 1.7, marginBottom: pSpacing, color: "#2a2018" }}>{block.text}</p>;
       case "h3": return (
-        <h3 key={i} style={{ fontSize: 19, fontWeight: 600, margin: "28px 0 10px", display: "flex", alignItems: "center", gap: 10, color: "#1a1208" }}>
-          <span style={{ width: 3, height: 20, background: "#c84b11", borderRadius: 2, flexShrink: 0, display: "inline-block" }} />
+        <h3 key={i} style={{ fontSize: h3Font, fontWeight: 600, margin: h3Margin, display: "flex", alignItems: "center", gap: 10, color: "#1a1208" }}>
+          <span style={{ width: 3, height: h3Font + 1, background: "#c84b11", borderRadius: 2, flexShrink: 0, display: "inline-block" }} />
           {block.text}
         </h3>
       );
-      case "callout": return <Callout key={i} variant={block.variant} label={block.label} text={block.text} />;
-      case "grid": return <ConceptGrid key={i} items={block.items} />;
+      case "callout": return <Callout key={i} variant={block.variant} label={block.label} text={block.text} isComfortable={isComfortable} />;
+      case "grid": return <ConceptGrid key={i} items={block.items} isComfortable={isComfortable} />;
       default: return null;
     }
   };
 
   return (
-    <div style={{ maxWidth: 780, margin: "0 auto", padding: "40px 36px 80px", width: "100%" }}>
+    <div style={{ maxWidth: maxW, margin: "0 auto", padding: pad, width: "100%" }}>
       <div style={{ fontFamily: "monospace", fontSize: 10, letterSpacing: "0.18em", color: "#7a6e5f", textTransform: "uppercase", marginBottom: 10, display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
         <span style={{ background: lesson.phaseColor, color: "#fff", padding: "2px 8px", borderRadius: 3, fontSize: 9 }}>{lesson.phase}</span>
         <span>Lesson {lessonIdx + 1} of {totalLessons}</span>
@@ -826,8 +1619,8 @@ function LessonView({ lesson, lessonIdx, totalLessons, onPrev, onNext, isComplet
         {isCompleted && <span style={{ color: "#1a6b3c", marginLeft: "auto" }}>✓ Completed</span>}
       </div>
 
-      <h1 style={{ fontSize: "clamp(26px,3.5vw,40px)", fontWeight: 700, lineHeight: 1.1, letterSpacing: "-0.02em", marginBottom: 8, color: "#1a1208" }}>{lesson.title}</h1>
-      <p style={{ fontSize: 16, fontWeight: 300, fontStyle: "italic", color: "#7a6e5f", marginBottom: 20, lineHeight: 1.55 }}>{lesson.subtitle}</p>
+      <h1 style={{ fontSize: isComfortable ? "clamp(32px,3.5vw,48px)" : "clamp(26px,3.5vw,40px)", fontWeight: 700, lineHeight: 1.1, letterSpacing: "-0.02em", marginBottom: 8, color: "#1a1208" }}>{lesson.title}</h1>
+      <p style={{ fontSize: subFont, fontWeight: 300, fontStyle: "italic", color: "#7a6e5f", marginBottom: 20, lineHeight: 1.55 }}>{lesson.subtitle}</p>
 
       <div style={{ display: "flex", gap: 16, marginBottom: 20, paddingBottom: 20, borderBottom: "1px solid #c8bfaa" }}>
         <span style={{ fontFamily: "monospace", fontSize: 11, color: "#7a6e5f" }}>⏱ {lesson.time}</span>
@@ -845,7 +1638,7 @@ function LessonView({ lesson, lessonIdx, totalLessons, onPrev, onNext, isComplet
         </button>
         {isCompleted && <span style={{ fontFamily: "monospace", fontSize: 10, color: "#1a6b3c" }}>✓ Completed</span>}
         <button onClick={onNext} style={{ fontFamily: "monospace", fontSize: 11, letterSpacing: "0.08em", textTransform: "uppercase", padding: "11px 22px", borderRadius: 6, border: "none", background: "#1a1208", color: "#f5f0e8", cursor: "pointer" }}>
-          {lessonIdx < totalLessons - 1 ? "Mark Complete & Continue →" : "Finish Course!"}
+          {lessonIdx < totalLessons - 1 ? "Mark Complete & Continue →" : "Complete & Take Final Exam →"}
         </button>
       </div>
     </div>
@@ -856,10 +1649,40 @@ function LessonView({ lesson, lessonIdx, totalLessons, onPrev, onNext, isComplet
 function CourseApp() {
   const [currentLesson, setCurrentLesson] = useState(-1);
   const [completed, setCompleted] = useState(new Set());
-  const [isFullscreen, setIsFullscreen] = useState(false);
   const [storageReady, setStorageReady] = useState(false);
   const [storageError, setStorageError] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  // Display mode: 'auto' (detect), 'compact' (mobile-sized), 'comfortable' (desktop-scaled)
+  const [displayModePref, setDisplayModePref] = useState("auto");
+  const [autoDetectedMode, setAutoDetectedMode] = useState("compact");
+  // Incremented on reset — used as part of view keys to force full remount
+  // (clears local state in LessonView, FinalExamView, QuizSet, etc.)
+  const [resetToken, setResetToken] = useState(0);
+  // Shows in-app reset confirmation modal (window.confirm is unreliable in sandboxed iframes)
+  const [showResetConfirm, setShowResetConfirm] = useState(false);
+
+  // Auto-detect display mode based on viewport width and pointer type.
+  // Desktop with mouse + wide screen = comfortable (larger type, more padding).
+  // Mobile/tablet or narrow screen = compact (current sizing).
+  useEffect(() => {
+    const detect = () => {
+      const isWide = window.innerWidth >= 900;
+      const hasFinePointer = window.matchMedia("(pointer: fine)").matches;
+      setAutoDetectedMode(isWide && hasFinePointer ? "comfortable" : "compact");
+    };
+    detect();
+    window.addEventListener("resize", detect);
+    const mq = window.matchMedia("(pointer: fine)");
+    if (mq.addEventListener) mq.addEventListener("change", detect);
+    return () => {
+      window.removeEventListener("resize", detect);
+      if (mq.removeEventListener) mq.removeEventListener("change", detect);
+    };
+  }, []);
+
+  // Resolve the active display mode (user override wins over auto-detect)
+  const displayMode = displayModePref === "auto" ? autoDetectedMode : displayModePref;
+  const isComfortable = displayMode === "comfortable";
 
   // Inject global styles once for active/focus states (touch-friendly) and
   // accessibility-focused keyboard outlines
@@ -897,6 +1720,9 @@ function CourseApp() {
         if (typeof saved.sidebarCollapsed === "boolean") {
           setSidebarCollapsed(saved.sidebarCollapsed);
         }
+        if (saved.displayModePref === "auto" || saved.displayModePref === "compact" || saved.displayModePref === "comfortable") {
+          setDisplayModePref(saved.displayModePref);
+        }
       }
     } catch (e) { setStorageError(true); }
     setStorageReady(true);
@@ -910,36 +1736,13 @@ function CourseApp() {
         completed: [...completed],
         currentLesson,
         sidebarCollapsed,
+        displayModePref,
       }));
       if (storageError) setStorageError(false);
     } catch (e) {
       setStorageError(true);
     }
-  }, [completed, currentLesson, sidebarCollapsed, storageReady, storageError]);
-
-  // Inject/remove a style tag that forces the app to fill the iframe viewport
-  useEffect(() => {
-    const id = "fs-override";
-    let el = document.getElementById(id);
-    if (isFullscreen) {
-      if (!el) {
-        el = document.createElement("style");
-        el.id = id;
-        document.head.appendChild(el);
-      }
-      el.textContent = `
-        html, body { margin: 0; padding: 0; width: 100% !important; height: 100% !important; overflow: hidden !important; }
-        #fs-root { position: fixed !important; inset: 0 !important; width: 100vw !important; height: 100vh !important; z-index: 99999 !important; overflow: hidden !important; }
-        #fs-root > nav { height: 100vh !important; }
-        #fs-root > main { height: 100vh !important; overflow-y: auto !important; }
-      `;
-    } else {
-      if (el) el.remove();
-    }
-    return () => { const s = document.getElementById(id); if (s) s.remove(); };
-  }, [isFullscreen]);
-
-  const toggleFullscreen = () => setIsFullscreen(f => !f);
+  }, [completed, currentLesson, sidebarCollapsed, displayModePref, storageReady, storageError]);
 
   const progressPct = Math.round((completed.size / LESSONS.length) * 100);
   const goTo = (idx) => { setCurrentLesson(idx); window.scrollTo(0, 0); };
@@ -947,12 +1750,114 @@ function CourseApp() {
   const handleNext = (idx) => {
     setCompleted(prev => new Set([...prev, idx]));
     if (idx < LESSONS.length - 1) goTo(idx + 1);
-    else goTo(-2);
+    else goTo(-3); // After last lesson, go to Final Exam
   };
 
-  // Keyboard shortcuts: arrow keys to navigate lessons, Esc to go home
+  // Export current progress as a downloadable JSON file
+  const exportProgress = () => {
+    const payload = {
+      version: 1,
+      exportedAt: new Date().toISOString(),
+      app: "AI Mastery for Aerospace",
+      data: {
+        completed: [...completed].sort((a, b) => a - b),
+        currentLesson,
+        sidebarCollapsed,
+        displayModePref,
+      },
+    };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    const datestamp = new Date().toISOString().slice(0, 10);
+    a.download = `ai-course-progress-${datestamp}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  // Import progress from a JSON file selected by the user
+  const importProgress = (file) => {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      try {
+        const parsed = JSON.parse(ev.target.result);
+        const data = parsed.data || parsed; // allow flat or wrapped shape
+
+        // Validate
+        if (!data || typeof data !== "object") throw new Error("Invalid file format");
+        if (!Array.isArray(data.completed)) throw new Error("Missing 'completed' array");
+
+        // Filter completed to valid lesson indices
+        const validCompleted = data.completed.filter(n =>
+          Number.isInteger(n) && n >= 0 && n < LESSONS.length
+        );
+
+        // Summarize what will be imported for the confirm dialog
+        const msg =
+          `Import progress?\n\n` +
+          `• ${validCompleted.length} of ${LESSONS.length} lessons will be marked complete\n` +
+          `• Display preferences will be restored\n\n` +
+          `This will REPLACE your current progress. Continue?`;
+
+        if (!window.confirm(msg)) return;
+
+        setCompleted(new Set(validCompleted));
+        if (typeof data.currentLesson === "number" &&
+            ((data.currentLesson >= 0 && data.currentLesson < LESSONS.length) ||
+             data.currentLesson === -1 || data.currentLesson === -2 || data.currentLesson === -3)) {
+          setCurrentLesson(data.currentLesson);
+        } else {
+          setCurrentLesson(-1);
+        }
+        if (typeof data.sidebarCollapsed === "boolean") {
+          setSidebarCollapsed(data.sidebarCollapsed);
+        }
+        if (data.displayModePref === "auto" || data.displayModePref === "compact" || data.displayModePref === "comfortable") {
+          setDisplayModePref(data.displayModePref);
+        }
+        window.alert(`✓ Progress imported successfully.\n${validCompleted.length} of ${LESSONS.length} lessons restored.`);
+      } catch (err) {
+        window.alert(`Import failed: ${err.message || "invalid JSON file"}`);
+      }
+    };
+    reader.onerror = () => window.alert("Could not read the file. Please try again.");
+    reader.readAsText(file);
+  };
+
+  // Reset all progress — wipes state AND local storage, then force-remounts views
+  // by bumping resetToken so lesson/exam/quiz local state clears too.
+  // Uses an in-app modal rather than window.confirm because sandboxed iframes
+  // (artifact previews, some embedded contexts) block native confirm dialogs.
+  const requestReset = () => {
+    setShowResetConfirm(true);
+  };
+
+  const confirmReset = () => {
+    try { localStorage.removeItem("ai-course-progress"); } catch(e) {}
+    setCompleted(new Set());
+    setCurrentLesson(-1);
+    setSidebarCollapsed(false);
+    setDisplayModePref("auto");
+    setResetToken(t => t + 1);
+    setShowResetConfirm(false);
+    window.scrollTo(0, 0);
+  };
+
+  // Keyboard shortcuts: arrow keys to navigate lessons, Esc to go home or close modal
   useEffect(() => {
     const onKey = (e) => {
+      // If reset modal is open, Esc closes it (and nothing else does)
+      if (showResetConfirm) {
+        if (e.key === "Escape") {
+          setShowResetConfirm(false);
+          e.preventDefault();
+        }
+        return;
+      }
       // Don't intercept when typing in inputs or when modifier keys held
       if (e.target.matches && e.target.matches("input, textarea, button, a")) {
         // Still allow Escape from buttons/links
@@ -975,7 +1880,7 @@ function CourseApp() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [currentLesson]);
+  }, [currentLesson, showResetConfirm]);
 
   // Derive phase groups from lesson data itself (not hardcoded indices)
   // so adding/removing lessons doesn't break the sidebar
@@ -991,7 +1896,7 @@ function CourseApp() {
   })();
 
   return (
-    <div id="fs-root" style={{ display: "flex", fontFamily: "Georgia, serif", background: "#f5f0e8", color: "#1a1208", minHeight: "100dvh" }}>
+    <div style={{ display: "flex", fontFamily: "Georgia, serif", background: "#f5f0e8", color: "#1a1208", minHeight: "100dvh" }}>
 
       {/* SIDEBAR */}
       <nav aria-label="Course navigation"
@@ -1069,14 +1974,33 @@ function CourseApp() {
               })}
             </div>
 
-            {/* Fullscreen button at bottom */}
-            <button
-              onClick={toggleFullscreen}
-              aria-label={isFullscreen ? "Exit fullscreen mode" : "Enter fullscreen mode"}
-              title={isFullscreen ? "Exit fullscreen" : "Fullscreen"}
-              style={{ marginTop: "auto", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 6, color: "rgba(255,255,255,0.55)", cursor: "pointer", padding: "6px 8px", fontFamily: "monospace", fontSize: 13, lineHeight: 1 }}>
-              {isFullscreen ? "✕" : "⤢"}
-            </button>
+            {/* Final Exam shortcut in collapsed rail */}
+            {(() => {
+              const unlocked = completed.size >= LESSONS.length;
+              const isActive = currentLesson === -3;
+              return (
+                <button
+                  onClick={() => { if (unlocked) goTo(-3); }}
+                  disabled={!unlocked}
+                  aria-label={unlocked ? "Take the final exam" : `Final exam locked — complete all ${LESSONS.length} lessons to unlock`}
+                  title={unlocked ? "Final Exam" : "Final Exam (locked)"}
+                  style={{
+                    width: 26, height: 26,
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    marginTop: 4,
+                    background: isActive ? "rgba(232,168,124,0.2)" : "transparent",
+                    border: `1px solid ${isActive ? "#e8a87c" : unlocked ? "rgba(232,168,124,0.4)" : "rgba(255,255,255,0.08)"}`,
+                    borderRadius: 4,
+                    fontSize: 13,
+                    cursor: unlocked ? "pointer" : "not-allowed",
+                    padding: 0,
+                    opacity: unlocked ? 1 : 0.5,
+                  }}>
+                  {unlocked ? "🎓" : "🔒"}
+                </button>
+              );
+            })()}
+
           </div>
         ) : (
           /* ── EXPANDED SIDEBAR ────────────────────────────────────────── */
@@ -1087,7 +2011,7 @@ function CourseApp() {
                   <div style={{ fontFamily: "monospace", fontSize: 9, letterSpacing: "0.18em", color: "rgba(255,255,255,0.32)", textTransform: "uppercase", marginBottom: 5 }}>Active Learning Course</div>
                   <div style={{ fontSize: 16, fontWeight: 700, lineHeight: 1.25 }}>AI Mastery for <span style={{ fontStyle: "italic", color: "#e8a87c" }}>Aerospace</span></div>
                 </div>
-                <div style={{ display: "flex", flexDirection: "column", gap: 5, flexShrink: 0 }}>
+                <div style={{ flexShrink: 0 }}>
                   {/* Collapse button */}
                   <button
                     onClick={() => setSidebarCollapsed(true)}
@@ -1096,12 +2020,6 @@ function CourseApp() {
                     title="Collapse sidebar"
                     style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.18)", borderRadius: 6, color: "rgba(255,255,255,0.65)", cursor: "pointer", padding: "4px 8px", lineHeight: 1, fontFamily: "monospace", fontSize: 13 }}>
                     ‹
-                  </button>
-                  <button onClick={toggleFullscreen}
-                    aria-label={isFullscreen ? "Exit fullscreen mode" : "Enter fullscreen mode"}
-                    title={isFullscreen ? "Exit fullscreen" : "Fullscreen"}
-                    style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.18)", borderRadius: 6, color: "rgba(255,255,255,0.65)", cursor: "pointer", padding: "4px 8px", lineHeight: 1, fontFamily: "monospace", fontSize: 13 }}>
-                    {isFullscreen ? "✕" : "⤢"}
                   </button>
                 </div>
               </div>
@@ -1119,12 +2037,7 @@ function CourseApp() {
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 5 }}>
                 <div style={{ fontFamily: "monospace", fontSize: 9, color: "rgba(255,255,255,0.22)" }}>{completed.size} of {LESSONS.length} complete</div>
                 {completed.size > 0 && (
-                  <button onClick={() => {
-                    if (!window.confirm("Reset all progress?")) return;
-                    setCompleted(new Set());
-                    setCurrentLesson(-1);
-                    try { localStorage.removeItem("ai-course-progress"); } catch(e) {}
-                  }}
+                  <button onClick={requestReset}
                   aria-label="Reset all course progress"
                   style={{ fontFamily: "monospace", fontSize: 8, letterSpacing: "0.08em", textTransform: "uppercase", padding: "2px 6px", background: "transparent", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 3, color: "rgba(255,255,255,0.3)", cursor: "pointer" }}>
                     Reset
@@ -1134,6 +2047,108 @@ function CourseApp() {
               {storageError && (
                 <div role="alert" style={{ marginTop: 10, padding: "6px 8px", background: "rgba(200,75,17,0.15)", border: "1px solid rgba(200,75,17,0.4)", borderRadius: 4, fontFamily: "monospace", fontSize: 9, color: "#e8a87c", lineHeight: 1.4 }}>
                   ⚠ Progress not saving. Browser storage may be blocked.
+                </div>
+              )}
+            </div>
+
+            {/* Export / Import Progress */}
+            <div style={{ padding: "12px 18px", borderBottom: "1px solid rgba(255,255,255,0.1)" }}>
+              <div style={{ fontFamily: "monospace", fontSize: 9, color: "rgba(255,255,255,0.32)", textTransform: "uppercase", letterSpacing: "0.12em", marginBottom: 7 }}>
+                Backup & Restore
+              </div>
+              <div style={{ display: "flex", gap: 6 }}>
+                <button
+                  onClick={exportProgress}
+                  aria-label="Export course progress as JSON file"
+                  title="Download a JSON backup of your progress"
+                  style={{
+                    flex: 1,
+                    padding: "7px 8px",
+                    fontFamily: "monospace", fontSize: 9,
+                    letterSpacing: "0.08em", textTransform: "uppercase",
+                    background: "rgba(255,255,255,0.06)",
+                    border: "1px solid rgba(255,255,255,0.15)",
+                    borderRadius: 4,
+                    color: "rgba(255,255,255,0.65)",
+                    cursor: "pointer", fontWeight: 600,
+                  }}>
+                  ↓ Export
+                </button>
+                <label
+                  aria-label="Import course progress from a JSON file"
+                  title="Restore progress from a JSON backup"
+                  style={{
+                    flex: 1,
+                    padding: "7px 8px",
+                    fontFamily: "monospace", fontSize: 9,
+                    letterSpacing: "0.08em", textTransform: "uppercase",
+                    background: "rgba(255,255,255,0.06)",
+                    border: "1px solid rgba(255,255,255,0.15)",
+                    borderRadius: 4,
+                    color: "rgba(255,255,255,0.65)",
+                    cursor: "pointer", fontWeight: 600,
+                    textAlign: "center",
+                    display: "block",
+                  }}>
+                  ↑ Import
+                  <input
+                    type="file"
+                    accept=".json,application/json"
+                    onChange={(e) => {
+                      const file = e.target.files && e.target.files[0];
+                      importProgress(file);
+                      // Reset the input so re-selecting the same file works
+                      e.target.value = "";
+                    }}
+                    style={{ display: "none" }}
+                  />
+                </label>
+              </div>
+              <div style={{ fontFamily: "monospace", fontSize: 8, color: "rgba(255,255,255,0.28)", marginTop: 6, letterSpacing: "0.06em", lineHeight: 1.4 }}>
+                Move progress between devices or keep a backup before resetting.
+              </div>
+            </div>
+
+            {/* Display mode selector — Auto / Compact / Comfortable */}
+            <div style={{ padding: "12px 18px", borderBottom: "1px solid rgba(255,255,255,0.1)" }}>
+              <div style={{ fontFamily: "monospace", fontSize: 9, color: "rgba(255,255,255,0.32)", textTransform: "uppercase", letterSpacing: "0.12em", marginBottom: 7 }}>
+                Display Size
+              </div>
+              <div role="radiogroup" aria-label="Display size preference" style={{ display: "flex", gap: 4, background: "rgba(0,0,0,0.25)", borderRadius: 6, padding: 3 }}>
+                {[
+                  { key: "auto",        label: "Auto",    title: "Detect automatically based on screen size" },
+                  { key: "compact",     label: "Compact", title: "Force mobile-sized layout" },
+                  { key: "comfortable", label: "Wide",    title: "Force desktop-sized larger layout" },
+                ].map(opt => {
+                  const selected = displayModePref === opt.key;
+                  return (
+                    <button
+                      key={opt.key}
+                      role="radio"
+                      aria-checked={selected}
+                      title={opt.title}
+                      onClick={() => setDisplayModePref(opt.key)}
+                      style={{
+                        flex: 1,
+                        padding: "5px 6px",
+                        fontFamily: "monospace", fontSize: 9,
+                        letterSpacing: "0.08em", textTransform: "uppercase",
+                        borderRadius: 4,
+                        border: "none",
+                        cursor: "pointer",
+                        transition: "background 0.15s, color 0.15s",
+                        background: selected ? "#e8a87c" : "transparent",
+                        color: selected ? "#1a1208" : "rgba(255,255,255,0.55)",
+                        fontWeight: selected ? 700 : 400,
+                      }}>
+                      {opt.label}
+                    </button>
+                  );
+                })}
+              </div>
+              {displayModePref === "auto" && (
+                <div style={{ fontFamily: "monospace", fontSize: 8, color: "rgba(255,255,255,0.3)", marginTop: 5, letterSpacing: "0.06em" }}>
+                  Detected: {autoDetectedMode === "comfortable" ? "Wide (desktop)" : "Compact (mobile)"}
                 </div>
               )}
             </div>
@@ -1160,6 +2175,44 @@ function CourseApp() {
                 })}
               </div>
             ))}
+
+            {/* Final Exam entry — unlocked once all lessons completed */}
+            <div style={{ padding: "8px 0" }}>
+              <div style={{ fontFamily: "monospace", fontSize: 9, letterSpacing: "0.14em", color: "rgba(232,168,124,0.6)", textTransform: "uppercase", padding: "2px 18px 6px" }}>Final Assessment</div>
+              {(() => {
+                const unlocked = completed.size >= LESSONS.length;
+                const isActive = currentLesson === -3;
+                return (
+                  <div
+                    onClick={() => { if (unlocked) goTo(-3); }}
+                    role="button"
+                    tabIndex={unlocked ? 0 : -1}
+                    aria-label={unlocked ? "Take the final exam" : `Final exam locked — complete all ${LESSONS.length} lessons to unlock`}
+                    aria-disabled={!unlocked}
+                    aria-current={isActive ? "page" : undefined}
+                    onKeyDown={(e) => { if (unlocked && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); goTo(-3); } }}
+                    style={{
+                      padding: "10px 18px",
+                      display: "flex", alignItems: "center", gap: 8,
+                      cursor: unlocked ? "pointer" : "not-allowed",
+                      borderLeft: `3px solid ${isActive ? "#e8a87c" : "transparent"}`,
+                      background: isActive ? "rgba(232,168,124,0.12)" : "transparent",
+                      color: isActive ? "#e8a87c" : unlocked ? "rgba(255,255,255,0.75)" : "rgba(255,255,255,0.3)",
+                      fontSize: 12, fontWeight: isActive ? 700 : 500,
+                      transition: "all 0.15s",
+                      opacity: unlocked ? 1 : 0.6,
+                    }}>
+                    <span style={{ fontSize: 14, flexShrink: 0 }} aria-hidden="true">{unlocked ? "🎓" : "🔒"}</span>
+                    <span style={{ flex: 1, lineHeight: 1.3 }}>
+                      Final Exam
+                      <div style={{ fontSize: 9, fontFamily: "monospace", color: "rgba(255,255,255,0.35)", letterSpacing: "0.08em", marginTop: 1 }}>
+                        25 questions · 85% to pass
+                      </div>
+                    </span>
+                  </div>
+                );
+              })()}
+            </div>
           </>
         )}
       </nav>
@@ -1167,7 +2220,7 @@ function CourseApp() {
       {/* MAIN */}
       <main aria-label="Lesson content" style={{ flex: 1, overflowY: "auto", height: "100dvh" }}>
         {currentLesson === -1 && (
-          <div style={{ maxWidth: 620, margin: "0 auto", padding: "60px 32px", textAlign: "center" }}>
+          <div style={{ maxWidth: isComfortable ? 820 : 620, margin: "0 auto", padding: isComfortable ? "80px 40px" : "60px 32px", textAlign: "center" }}>
             <div style={{ fontSize: 58, marginBottom: 18 }}>✈️</div>
             <h1 style={{ fontSize: "clamp(28px,5vw,44px)", fontWeight: 700, letterSpacing: "-0.03em", marginBottom: 10 }}>
               Welcome to Your <span style={{ fontStyle: "italic", color: "#c84b11" }}>AI Mastery</span> Course
@@ -1206,8 +2259,16 @@ function CourseApp() {
           </div>
         )}
 
+        {currentLesson === -3 && (
+          <FinalExamView
+            key={`exam-${resetToken}`}
+            onExit={goHome}
+            isComfortable={isComfortable}
+          />
+        )}
+
         {currentLesson === -2 && (
-          <div style={{ maxWidth: 600, margin: "0 auto", padding: "64px 32px", textAlign: "center" }}>
+          <div style={{ maxWidth: isComfortable ? 760 : 600, margin: "0 auto", padding: isComfortable ? "80px 40px" : "64px 32px", textAlign: "center" }}>
             <div style={{ fontSize: 70, marginBottom: 18 }}>🎓</div>
             <h1 style={{ fontSize: 40, fontWeight: 700, letterSpacing: "-0.03em", marginBottom: 10 }}>Course Complete!</h1>
             <p style={{ fontSize: 15, fontWeight: 300, color: "#7a6e5f", lineHeight: 1.78, marginBottom: 28 }}>
@@ -1223,22 +2284,90 @@ function CourseApp() {
                 → Schedule 30 minutes with your manager to present the opportunity
               </div>
             </div>
-            <button onClick={goHome} style={{ fontFamily: "monospace", fontSize: 11, letterSpacing: "0.08em", textTransform: "uppercase", padding: "12px 28px", background: "transparent", color: "#7a6e5f", border: "1px solid #c8bfaa", borderRadius: 6, cursor: "pointer" }}>← Back to Course Home</button>
+            <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
+              <button onClick={() => goTo(-3)} style={{ fontFamily: "monospace", fontSize: 11, letterSpacing: "0.08em", textTransform: "uppercase", padding: "12px 28px", background: "#1a1208", color: "#f5f0e8", border: "none", borderRadius: 6, cursor: "pointer", fontWeight: 700 }}>Take Final Exam →</button>
+              <button onClick={goHome} style={{ fontFamily: "monospace", fontSize: 11, letterSpacing: "0.08em", textTransform: "uppercase", padding: "12px 28px", background: "transparent", color: "#7a6e5f", border: "1px solid #c8bfaa", borderRadius: 6, cursor: "pointer" }}>← Course Home</button>
+            </div>
           </div>
         )}
 
         {currentLesson >= 0 && currentLesson < LESSONS.length && (
           <LessonView
-            key={currentLesson}
+            key={`lesson-${currentLesson}-${resetToken}`}
             lesson={LESSONS[currentLesson]}
             lessonIdx={currentLesson}
             totalLessons={LESSONS.length}
             isCompleted={completed.has(currentLesson)}
+            isComfortable={isComfortable}
             onPrev={() => currentLesson > 0 ? goTo(currentLesson - 1) : goHome()}
             onNext={() => handleNext(currentLesson)}
           />
         )}
       </main>
+
+      {/* Reset confirmation modal — in-app, works in sandboxed iframes */}
+      {showResetConfirm && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="reset-modal-title"
+          onClick={() => setShowResetConfirm(false)}
+          style={{
+            position: "fixed", inset: 0, zIndex: 99999,
+            background: "rgba(26,18,8,0.72)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            padding: 20,
+            backdropFilter: "blur(3px)",
+            WebkitBackdropFilter: "blur(3px)",
+          }}>
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              maxWidth: 440, width: "100%",
+              background: "#f5f0e8",
+              borderRadius: 12,
+              padding: "28px 28px 22px",
+              boxShadow: "0 20px 60px rgba(0,0,0,0.5)",
+              border: "1px solid #c8bfaa",
+            }}>
+            <h2 id="reset-modal-title" style={{ fontSize: 22, fontWeight: 700, color: "#1a1208", margin: "0 0 10px", letterSpacing: "-0.01em" }}>
+              Reset all progress?
+            </h2>
+            <p style={{ fontSize: 14, lineHeight: 1.6, color: "#5a4e3f", margin: "0 0 22px" }}>
+              This will clear your completed lessons, quiz answers, any final exam attempt in progress, and your display preferences. This cannot be undone.
+            </p>
+            <div style={{ display: "flex", gap: 10, justifyContent: "flex-end", flexWrap: "wrap" }}>
+              <button
+                onClick={() => setShowResetConfirm(false)}
+                autoFocus
+                aria-label="Cancel reset"
+                style={{
+                  fontFamily: "monospace", fontSize: 11,
+                  letterSpacing: "0.08em", textTransform: "uppercase",
+                  padding: "10px 20px",
+                  background: "transparent", color: "#7a6e5f",
+                  border: "1px solid #c8bfaa", borderRadius: 6,
+                  cursor: "pointer",
+                }}>
+                Cancel
+              </button>
+              <button
+                onClick={confirmReset}
+                aria-label="Confirm reset — clear all progress"
+                style={{
+                  fontFamily: "monospace", fontSize: 11,
+                  letterSpacing: "0.08em", textTransform: "uppercase",
+                  padding: "10px 20px",
+                  background: "#c84b11", color: "#f5f0e8",
+                  border: "none", borderRadius: 6,
+                  cursor: "pointer", fontWeight: 700,
+                }}>
+                Yes, Reset
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -1300,12 +2429,6 @@ class ErrorBoundary extends Component {
   }
 }
 
-// NOTE on the fullscreen button: the "⤢ FULL" button uses CSS injection
-// (`position: fixed; inset: 0`) rather than the browser Fullscreen API, because
-// artifact iframes and many PWA contexts block the real Fullscreen API. This
-// means fullscreen fills the host container (iframe or viewport) — it works
-// reliably in the deployed PWA but only fills the artifact iframe in the
-// preview. Escape key exits via the keyboard handler in CourseApp.
 function App() {
   return (
     <ErrorBoundary>
