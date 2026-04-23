@@ -334,7 +334,7 @@ const AI_LESSONS = [
   title: "What Are AI Agents?",
   subtitle: "Understand the shift from single-response AI to systems that plan, act, and iterate.",
   time: "35 min", type: "Core Concept",
-  video: { id: "F8NKVhkZZWI", title: "What are AI Agents? (IBM Technology)" },
+  video: { id: "FwOTs4UxQS4", title: "AI Agents, Clearly Explained (Jeff Su)" },
   content: [
     { type: "p", text: "Everything we have built so far follows one pattern: send a prompt, get a response. That is powerful but limited to single-step tasks. AI agents unlock multi-step, autonomous workflows where the AI can plan, use tools, check its own work, and iterate — completing complex tasks that would normally require hours of human effort." },
     { type: "h3", text: "The Four Properties of an Agent" },
@@ -429,7 +429,7 @@ const AI_LESSONS = [
   title: "Aerospace AI Use Cases",
   subtitle: "A practical map of where AI creates the most value in component manufacturing.",
   time: "40 min", type: "Strategic",
-  video: { id: "WzcB1-MHCRY", title: "Generative AI Use Cases in Manufacturing" },
+  video: { id: "eggdmbRh7c0", title: "How AI is Changing Manufacturing" },
   content: [
     { type: "p", text: "You now have the technical skills. This lesson is about knowing where to aim them for maximum impact. The highest-ROI AI applications in aerospace component manufacturing cluster around five domains — and the right starting point is almost always document processing, not computer vision or complex machine learning." },
     { type: "h3", text: "Domain 1: Quality and Inspection" },
@@ -491,7 +491,7 @@ const AI_LESSONS = [
   title: "Building the Business Case",
   subtitle: "Turn your technical knowledge into leadership-ready proposals that get approved and funded.",
   time: "45 min", type: "Strategic + Capstone",
-  video: { id: "Ypi8-pzcIIs", title: "How to Write a Business Case (Key Components & Structure)" },
+  video: { id: "UQP5MmCAQ3Y", title: "How to Write a Business Case — Project Management Training (ProjectManager)" },
   content: [
     { type: "p", text: "You have the technical foundation. Now comes the skill that determines whether any of it gets deployed at scale: making the case to leadership in terms they care about — ROI, risk reduction, competitive advantage, and manageable implementation risk." },
     { type: "h3", text: "The ROI Calculation" },
@@ -722,6 +722,18 @@ function VideoEmbed({ video }) {
       </div>
 
       {body}
+
+      {/* Attribution disclaimer — hidden in fullscreen to keep that a clean viewing mode */}
+      {!expanded && (
+        <div style={{ background:DARK, padding:"6px 14px 8px",
+                      borderTop:"1px solid rgba(255,255,255,0.06)" }}>
+          <div style={{ fontFamily:"monospace", fontSize:9, letterSpacing:"0.04em",
+                        color:"rgba(245,240,232,0.35)", lineHeight:1.45,
+                        textAlign:"center" }}>
+            Video content is the property of the respective linked YouTube channels and authors.
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -1100,7 +1112,7 @@ const MBA_LESSONS = [
   title: "Welcome & Orientation",
   subtitle: "What this MBA track covers, how it maps to aerospace, and what you'll be able to do when you're done.",
   time: "20 min", type: "Orientation",
-  video: { id: "K8GV0UV8uMA", title: "What is an MBA? — The MBA Explained (Professor Heather Austin)" },
+  video: { id: "x7trgZp5KCQ", title: "Master of Business Administration (MBA) Explained — Careers, Curriculum & Admissions" },
   content: [
     { type: "p", text: "Welcome to the MBA Professional Certificate track. This course is designed for aerospace engineers and manufacturing professionals who want executive-level business fluency without leaving their technical identity behind. You already understand how the product gets made — this course teaches you how the business gets run." },
     { type: "h3", text: "How This Course Works" },
@@ -1117,8 +1129,8 @@ const MBA_LESSONS = [
     { type: "h3", text: "Your 6-Month Roadmap" },
     { type: "grid", items: [
       { title: "Phase 1 — Weeks 1-4", text: "Foundation: financial statements, cost accounting, capital budgeting, reading an aerospace annual report." },
-      { title: "Phase 2 — Weeks 5-12", text: "Operations & Strategy: competitive positioning, lean operations, supply chain risk." },
-      { title: "Phase 3 — Weeks 13-20", text: "People & Markets: leadership, defense/aerospace marketing, negotiation and contracts." },
+      { title: "Phase 2 — Weeks 5-12", text: "Strategy & Operations: competitive positioning, lean operations, supply chain risk." },
+      { title: "Phase 3 — Weeks 13-20", text: "Leadership & Commercial: leadership, defense/aerospace marketing, negotiation and contracts." },
       { title: "Phase 4 — Weeks 21-26", text: "Execution: industry structure, program management with earned value, your executive business case." },
     ]},
   ],
@@ -1247,7 +1259,7 @@ const MBA_LESSONS = [
 },
 
 // ═══════════════════════════════════════════════════════════════════════════
-// PHASE 2 — OPERATIONS & STRATEGY
+// PHASE 2 — STRATEGY & OPERATIONS
 // ═══════════════════════════════════════════════════════════════════════════
 {
   phase: "Phase 2", phaseColor: "#8a6a20",
@@ -1285,7 +1297,7 @@ const MBA_LESSONS = [
   title: "Operations Management & Lean in Aerospace",
   subtitle: "Throughput, bottlenecks, lean principles, and the Toyota Production System applied to low-volume aerospace work.",
   time: "55 min", type: "Core Concept",
-  video: { id: "XAWXoidqmPI", title: "What is the Toyota Production System? (Lean Manufacturing Explained)" },
+  video: { id: "wk-Mz_4Rzx0", title: "An Introduction To The Toyota Production System (Toyota Cambridge)" },
   content: [
     { type: "p", text: "Operations management is the discipline of running processes efficiently. In aerospace, the challenge is adapting high-volume lean concepts (originally from automotive) to low-volume, high-mix production where a single fixture might run 20 different part numbers." },
     { type: "h3", text: "The Theory of Constraints" },
@@ -1319,7 +1331,7 @@ const MBA_LESSONS = [
   title: "Supply Chain & Risk Management",
   subtitle: "Single-source risk, strategic sourcing, inventory strategy, and supply chain resilience after 2020.",
   time: "50 min", type: "Core Concept",
-  video: { id: "Mi1QBxVjZAw", title: "What is Supply Chain Management? Definition and Introduction (AIMS Education)" },
+  video: { id: "Mi1QBxVjZAw", title: "What is Supply Chain Management? (ASU W.P. Carey School, Module 1)" },
   content: [
     { type: "p", text: "Aerospace supply chains are famously complex — an airliner has 2-4 million parts, many with lead times of 6+ months and single sources of supply. COVID and ongoing geopolitical tensions have made supply chain resilience a C-suite priority, which means it's a source of both career opportunity and career risk for operations professionals." },
     { type: "h3", text: "Types of Supply Risk" },
@@ -1346,7 +1358,7 @@ const MBA_LESSONS = [
 },
 
 // ═══════════════════════════════════════════════════════════════════════════
-// PHASE 3 — PEOPLE & MARKETS
+// PHASE 3 — LEADERSHIP & COMMERCIAL
 // ═══════════════════════════════════════════════════════════════════════════
 {
   phase: "Phase 3", phaseColor: "#1c4a7a",
@@ -1387,7 +1399,7 @@ const MBA_LESSONS = [
   title: "Marketing & Business Development in Defense/Aerospace",
   subtitle: "B2B marketing, capture management, and the long sales cycles of aerospace contracts.",
   time: "50 min", type: "Core Concept",
-  video: { id: "-f3lP4I4aKo", title: "B2B vs B2C Marketing: What's the Difference? (Adam Erhart)" },
+  video: { id: "z0PnhkJxf6o", title: "B2B vs B2C Marketing — What is the Difference?" },
   content: [
     { type: "p", text: "Aerospace marketing isn't Super Bowl commercials. It's multi-year relationship cultivation, capture management, proposal development, and influencing requirements before an RFP is even issued. Engineers who understand how this works become far more valuable — both to their employer and in their own career trajectories." },
     { type: "h3", text: "B2B Aerospace vs. Consumer Marketing" },
@@ -1482,7 +1494,7 @@ const MBA_LESSONS = [
   title: "Program Management & Earned Value",
   subtitle: "Running a program by the numbers — cost performance index, schedule performance index, and variance analysis.",
   time: "55 min", type: "Practical Skill",
-  video: { id: "7b0r5qZfgHE", title: "Earned Value Management (EVM) Explained — CPI, SPI, CV, SV (PM-Partners)" },
+  video: { id: "7DLyZjsrG14", title: "Earned Value Analysis Calculations — CPI, SPI, CV, SV, EAC, ETC, BAC" },
   content: [
     { type: "p", text: "Aerospace programs are measured and managed through Earned Value Management (EVM). If you work on any DoD program or substantial commercial one, you'll encounter it. Understanding EVM lets you read program status reports critically, ask the right questions in reviews, and manage work to the right metrics." },
     { type: "h3", text: "The Three Core Numbers" },
@@ -1518,7 +1530,7 @@ const MBA_LESSONS = [
   title: "Building Your Executive Business Case",
   subtitle: "A one-page proposal template that gets funded — combining everything from the previous 13 lessons.",
   time: "45 min", type: "Capstone",
-  video: { id: "Ypi8-pzcIIs", title: "How to Write a Business Case (Key Components & Structure)" },
+  video: { id: "UQP5MmCAQ3Y", title: "How to Write a Business Case — Project Management Training (ProjectManager)" },
   content: [
     { type: "p", text: "The capstone of the course: you can now read financials, evaluate capital investments, understand your industry structure, and manage programs. The final skill is translating all that into a compelling business case that executive leadership will actually read and fund. Most engineers fail at this not because their ideas are wrong — but because they can't package them for a busy decision-maker." },
     { type: "h3", text: "The One-Page Principle" },
@@ -1627,7 +1639,7 @@ const MBA_FINAL_EXAM = [
               "An accounting figure with no investment relevance",
               "The hourly shop rate"] },
 
-  // ─── Phase 2: Operations & Strategy ────────────────────────────────────────
+  // ─── Phase 2: Strategy & Operations ────────────────────────────────────────
   { phase: "P2", q: "Why does aerospace manufacturing have high barriers to entry?",
     options: ["AS9100 certification, capital equipment, flight-part qualifications, and customer approvals take years and millions of dollars",
               "The industry is secretly regulated to prevent competition",
@@ -1694,7 +1706,7 @@ const MBA_FINAL_EXAM = [
               "Labor with material",
               "Engineering with marketing"] },
 
-  // ─── Phase 3: People & Markets ─────────────────────────────────────────────
+  // ─── Phase 3: Leadership & Commercial ──────────────────────────────────────
   { phase: "P3", q: "Which leadership style is most appropriate for a genuine crisis with no time for consensus?",
     options: ["Commanding — 'do this now' — though it damages morale if used routinely",
               "Democratic",
@@ -3349,7 +3361,7 @@ function App() {
 }
 
 
-// ─── MOUNT ─────────────────────────────────────────────────────────────────────
+// ─── MOUNT ───
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(<App />);
 
